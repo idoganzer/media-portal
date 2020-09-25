@@ -1,0 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap');
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto;
+  font-family: 'Lato', sans-serif;
+}
+
+.App {
+  height: 100%;
+  background: #1f1f1f;
+  color: #f6f6f6;
+  overflow-y:  hidden;
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
+}
