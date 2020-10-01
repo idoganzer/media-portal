@@ -8,13 +8,14 @@ const ListItem = styled.li`
   background: #282828;
   transition: width 80ms ease-in-out;
   display: flex;
+  img {
+    height: inherit;
+    cursor: pointer;
+  }
+  
   &.isExtended {
     width: 500px;
   }
-`;
-const Image = styled.img`
-  height: inherit;
-  cursor: pointer;
 `;
 const ShowInfoContainer = styled.div`
   height: inherit;
@@ -57,19 +58,19 @@ class Card extends Component{
         super();
         this.state = {
             isExtended: false
-        }
-    }
+        };
+    };
     togglePanel = () => this.setState({ isExtended: !this.state.isExtended });
     //TODO move this
     buildEpisodeNum = (season, episode) => {
         return 'S' + (season.toString().length > 1 ? season : '0' + season) +
             'E' + (episode.toString().length > 1 ? episode : '0' + episode)
-    }
+    };
     render() {
         return (
             <ListItem
                 className={this.state.isExtended ? 'isExtended': null}>
-                <Image src={this.props.show.img} alt="" onClick={this.togglePanel}/>
+                <img src={this.props.show.img} alt="" onClick={this.togglePanel}/>
                 <ShowInfoContainer isExtended={this.state.isExtended} className={this.state.isExtended ? 'isExtended': null}>
                     <h1>{this.props.show.name}</h1>
                     <h2>{this.props.show.title}</h2>
@@ -79,7 +80,7 @@ class Card extends Component{
                 </ShowInfoContainer>
             </ListItem>
         );
-    }
+    };
 }
 
 export default Card;

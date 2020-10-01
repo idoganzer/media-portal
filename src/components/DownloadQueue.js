@@ -38,8 +38,7 @@ const QueueContainer = styled.div`
 class DownloadQueue extends Component{
     componentWillUnmount() {
         this.props.doUpdate();
-        console.log('updated');
-    }
+    };
 
     render() {
         return (
@@ -52,7 +51,7 @@ class DownloadQueue extends Component{
                 </div>
             </QueueContainer>
         );
-    }
+    };
 }
 
 export default DownloadQueue;

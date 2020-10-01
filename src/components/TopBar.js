@@ -130,7 +130,7 @@ class TopBar extends Component{
                 </NavigationMenu>
             </TopBarContainer>
         );
-    }
+    };
 }
 
 export default TopBar;
