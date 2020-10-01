@@ -23,9 +23,9 @@ const QueueContainer = styled.div`
       box-sizing: border-box;
       .progress {
         height: inherit;
+        width: ${props => props.sizeleft};
         font-size: 15px;
         font-weight: bold;
-        width: 100%;
         padding-left: 5px;
         box-sizing: border-box;
         background: #70a938;
@@ -36,13 +36,19 @@ const QueueContainer = styled.div`
 `;
 
 class DownloadQueue extends Component{
+    componentWillUnmount() {
+        this.props.doUpdate();
+        console.log('updated');
+    }
+
     render() {
         return (
-            <QueueContainer>
-                <img src="http://thetvdb.com/banners/graphical/121361-g19.jpg" alt=""/>
-                <p>Re:ZERO -Starting Life in Another World</p>
+            <QueueContainer sizeleft={this.props.queue.percentComplete} >
+                <img src={this.props.queue.banner} alt=""/>
+                <p>{this.props.queue.title}</p>
+                <p>{this.props.queue.episode}</p>
                 <div className={'progressBar'}>
-                    <div className="progress">15%</div>
+                    <div className="progress">{this.props.queue.percentComplete}</div>
                 </div>
             </QueueContainer>
         );

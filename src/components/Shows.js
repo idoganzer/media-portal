@@ -49,8 +49,8 @@ const List = styled.ul`
 `;
 
 class Shows extends Component{
-    constructor(props) {
-        super(props);
+    constructor() {
+        super();
         this.showListParent = React.createRef();
     }
     animateScroll = direction => {

@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import Shows from "./components/Shows";
 import TopBar from "./components/TopBar";
-import placeholderImg from "./images/placeholder.jpg"
+import placeholderImg from "./images/poster-placeholder.jpg"
 
 class App extends Component{
     constructor() {
@@ -33,15 +33,22 @@ class App extends Component{
     }
 
     componentDidMount = () => {
+        this.updateAPIData();
+    }
+    updateAPIData = () => {
         this.getAPIData()
             .then(res => this.parseResults(res))
             .then(records => this.setState(records))
             .catch(err => console.log(err));
+    };
+    getAPIData = async () => {
+        let response = await Promise.all([
+            fetch(this.createRequestString(this.apiObj.calendar, 7)),
+            fetch(this.createRequestString(this.apiObj.history, 50))
+        ]);
+        return [await response[0].json(), await response[1].json()]
     }
-    filterPosters = imageObj => {
-        const posters = imageObj.filter(img => img.coverType === 'poster')[0]?.url;
-        return posters === undefined ? placeholderImg : posters
-    }
+    getQueueData = async () => await fetch(this.createRequestString(this.apiObj.queue, null));
     parseResults = res => {
         return {
             shows: {
@@ -70,19 +77,14 @@ class App extends Component{
                             status: show.series.status,
                             img: this.filterPosters(show.series.images)
                         }
-                })
+                    })
             }
         }
     }
-    getAPIData = async () => {
-        let response = await Promise.all([
-            fetch(this.createRequestString(this.apiObj.calendar, 7)),
-            fetch(this.createRequestString(this.apiObj.history, 50))
-        ]);
-        return [await response[0].json(), await response[1].json()]
+    filterPosters = imageObj => {
+        const posters = imageObj.filter(img => img.coverType === 'poster')[0]?.url;
+        return posters === undefined ? placeholderImg : posters
     }
-    getQueueData = async () => await fetch(this.createRequestString(this.apiObj.queue, null));
-
     getDate = range => {
         let now = new Date(),
             startString = now.getFullYear() + "-" + (now.getMonth() + 1) + "-" + (now.getDate());
@@ -99,14 +101,18 @@ class App extends Component{
         if (obj.hasOwnProperty('options')) return obj.base + '&' + obj.options + range + '&' + obj.key;
         return obj.base + obj.key + '&start=' + this.getDate(range)[0] + '&end=' + this.getDate(range)[1];
     }
+    buildEpisodeNum = (season, episode) => {
+        return 'S' + (season.toString().length > 1 ? season : '0' + season) +
+            'E' + (episode.toString().length > 1 ? episode : '0' + episode)
+    }
     render() {
         return (
             <div className="App">
-                <TopBar queue={this.getQueueData}/>
+                <TopBar queue={this.getQueueData} doUpdate={this.updateAPIData} episodeNum={this.buildEpisodeNum}/>
                 <Shows shows={this.state.shows}/>
             </div>
         );
-    }
-}
+    };
+};
 
 export default App;
