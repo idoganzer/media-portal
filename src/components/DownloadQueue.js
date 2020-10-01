@@ -36,11 +36,6 @@ const QueueContainer = styled.div`
 `;
 
 class DownloadQueue extends Component{
-    constructor() {
-        super();
-
-    }
-
     render() {
         return (
             <QueueContainer>

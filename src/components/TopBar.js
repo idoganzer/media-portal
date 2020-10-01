@@ -71,10 +71,15 @@ class TopBar extends Component{
         super();
         this.state = {
             isExtended: false,
-            links: configData.links
+            links: configData.links,
+            queue: []
         };
-    }
+    };
+    componentDidMount = () => {
+      this.updateQueue();
+    };
     togglePanel = () => this.setState({ isExtended: !this.state.isExtended });
+    updateQueue = () => this.props.queue().then(async res => await res.json()).then(data => this.setState({queue: data}));
 
     render() {
         return (
