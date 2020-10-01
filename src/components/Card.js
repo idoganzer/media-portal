@@ -60,7 +60,7 @@ class Card extends Component{
         }
     }
     togglePanel = () => this.setState({ isExtended: !this.state.isExtended });
-
+    //TODO move this
     buildEpisodeNum = (season, episode) => {
         return 'S' + (season.toString().length > 1 ? season : '0' + season) +
             'E' + (episode.toString().length > 1 ? episode : '0' + episode)

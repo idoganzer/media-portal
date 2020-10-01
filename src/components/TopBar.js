@@ -4,6 +4,7 @@ import DownloadQueue from "./DownloadQueue";
 import configData from "../config.json"
 import {ReactComponent as MenuIcon} from "../images/menu.svg";
 import {ReactComponent as DownloadIcon} from "../images/download.svg";
+import placeholderImg from "../images/banner-placeholder.jpg";
 
 const TopBarContainer = styled.div`
     height: 25px;
@@ -30,6 +31,9 @@ const TopBarContainer = styled.div`
           transform-origin: 50% 50%;
           animation: 1s linear downloadAnimation;
           animation-iteration-count: infinite;
+        }
+        &.hidden {
+          display: none;
         }
         @keyframes downloadAnimation {
           100% {transform: translateY(380px);}
@@ -71,21 +75,46 @@ class TopBar extends Component{
         super();
         this.state = {
             isExtended: false,
+            isDownloading: false,
             links: configData.links,
             queue: []
         };
     };
     componentDidMount = () => {
-      this.updateQueue();
+        this.updateQueue();
+        this.updateInterval();
     };
     togglePanel = () => this.setState({ isExtended: !this.state.isExtended });
-    updateQueue = () => this.props.queue().then(async res => await res.json()).then(data => this.setState({queue: data}));
-
+    updateQueue = () => this.props.queue().then(async res => this.parseResults(await res.json())).then(data => this.setState({queue: data}));
+    parseResults = res => {
+        if (!res.length) {
+            this.setState({isDownloading: false})
+            return res
+        }
+        this.setState({isDownloading: true})
+        return res.map(show => {
+            return {
+                id: show.id,
+                title: show.series.title,
+                episode: this.props.episodeNum(show.episode.episodeNumber, show.episode.seasonNumber),
+                percentComplete: this.calcPercent(show.size, show.sizeleft),
+                banner: this.filterBanner(show.series.images)
+            }
+        })
+    };
+    filterBanner = imageObj => {
+        const banners = imageObj.filter(img => img.coverType === 'banner')[0]?.url;
+        return banners === undefined ? placeholderImg : banners
+    };
+    calcPercent = (total, amount) => Math.round(((total - amount) / total) * 100) + "%";
+    updateInterval = () => {
+        let interval = setInterval(() => {this.updateQueue()}, 10000)
+    };
     render() {
         return (
             <TopBarContainer>
                 <h1>Media Portal</h1>
-                <DownloadIcon className={'downloadIcon'}/>
+                <DownloadIcon className={this.state.isDownloading ? 'downloadIcon' : 'downloadIcon hidden'}/>
                 <MenuIcon className={'menuIcon'} onClick={this.togglePanel}/>
                 <NavigationMenu className={this.state.isExtended ? 'isExtended': null} onClick={this.togglePanel}>
                     <ul>
@@ -97,11 +126,10 @@ class TopBar extends Component{
                             )
                         }
                     </ul>
-                    <DownloadQueue/>
-                    <DownloadQueue/>
+                    {this.state.queue.map(show => <DownloadQueue doUpdate={this.props.doUpdate} key={show.id} queue={show}/>)}
                 </NavigationMenu>
             </TopBarContainer>
-    );
+        );
     }
 }
 
