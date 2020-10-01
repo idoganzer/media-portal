@@ -24,7 +24,7 @@ class App extends Component{
             },
             movies: {
                 history: []
-            }
+            },
         };
     }
 
@@ -32,7 +32,7 @@ class App extends Component{
         this.GetAPIData()
             .then(res => this.parseResults(res))
             .then(records => this.setState(records))
-            .catch(err => console.log(err))
+            .catch(err => console.log(err));
     }
     filterPosters = imageObj => {
         const posters = imageObj.filter(img => img.coverType === 'poster')[0]?.url;
@@ -67,9 +67,6 @@ class App extends Component{
                             img: this.filterPosters(show.series.images)
                         }
                 })
-            },
-            movies: {
-                history: []
             }
         }
     }
@@ -96,7 +93,6 @@ class App extends Component{
             obj.base + '&' + obj.options + range + '&' + obj.key :
             obj.base + obj.key + '&start=' + this.getDate(range)[0] + '&end=' + this.getDate(range)[1];
     }
-
     render() {
         return (
             <div className="App">
