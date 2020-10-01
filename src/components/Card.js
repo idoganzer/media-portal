@@ -6,7 +6,6 @@ const ListItem = styled.li`
   width: 272px;
   height: 400px;
   background: #282828;
-  cursor: pointer;
   transition: width 80ms ease-in-out;
   display: flex;
   &.isExtended {
@@ -15,6 +14,7 @@ const ListItem = styled.li`
 `;
 const Image = styled.img`
   height: inherit;
+  cursor: pointer;
 `;
 const ShowInfoContainer = styled.div`
   height: inherit;
@@ -59,10 +59,8 @@ class Card extends Component{
             isExtended: false
         }
     }
-    togglePanel = () => {
-        const currentState = this.state.isExtended;
-        this.setState({ isExtended: !currentState });
-    }
+    togglePanel = () => this.setState({ isExtended: !this.state.isExtended });
+
     buildEpisodeNum = (season, episode) => {
         return 'S' + (season.toString().length > 1 ? season : '0' + season) +
             'E' + (episode.toString().length > 1 ? episode : '0' + episode)
@@ -70,8 +68,8 @@ class Card extends Component{
     render() {
         return (
             <ListItem
-                className={this.state.isExtended ? 'isExtended': null} onClick={this.togglePanel}>
-                <Image src={this.props.show.img} alt=""/>
+                className={this.state.isExtended ? 'isExtended': null}>
+                <Image src={this.props.show.img} alt="" onClick={this.togglePanel}/>
                 <ShowInfoContainer isExtended={this.state.isExtended} className={this.state.isExtended ? 'isExtended': null}>
                     <h1>{this.props.show.name}</h1>
                     <h2>{this.props.show.title}</h2>

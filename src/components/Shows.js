@@ -43,6 +43,9 @@ const List = styled.ul`
     overflow-y: hidden;
     scroll-snap-type: x mandatory;
     scrollbar-width: none;
+    ::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 class Shows extends Component{
