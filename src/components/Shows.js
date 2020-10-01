@@ -5,18 +5,16 @@ import leftArrow from '../images/left.svg'
 import rightArrow from '../images/right.svg'
 
 const ShowContainer = styled.div`
-        height: 100%;
-        width:100%;
-`;
-
-const Heading = styled.h1`
+  height: 100%;
+  width:100%;
+  h1 {
     font-size: 1.5em;
     padding: 5px 10px;
     margin-bottom: 10px;
     font-weight: bold;
     border-bottom: 1px solid #414141;
-`;
-const ScrollBtn = styled.div`
+  }
+  .scrollBtn {
     width: 60px;
     height: 15px;
     cursor: pointer;
@@ -29,21 +27,23 @@ const ScrollBtn = styled.div`
         transform: scale3d(1.1,1.1,1.1);
       }
     }
+   }
 `;
+
 const List = styled.ul`
-    width: 99vw;
-    display: grid;
-    margin: 0 7px;
-    box-sizing: border-box;
-    grid-template-rows: 1fr;
-    grid-auto-flow: column;
-    grid-auto-columns: auto;
-    grid-column-gap: 7px;
-    overflow-x: scroll;
-    overflow-y: hidden;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-    ::-webkit-scrollbar {
+  width: 99vw;
+  display: grid;
+  margin: 0 7px;
+  box-sizing: border-box;
+  grid-template-rows: 1fr;
+  grid-auto-flow: column;
+  grid-auto-columns: auto;
+  grid-column-gap: 7px;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  ::-webkit-scrollbar {
     display: none;
   }
 `;
@@ -52,7 +52,7 @@ class Shows extends Component{
     constructor() {
         super();
         this.showListParent = React.createRef();
-    }
+    };
     animateScroll = direction => {
         const scrollLimit = 410,
               scrollFactor = 15;
@@ -64,23 +64,23 @@ class Shows extends Component{
             counter = counter + scrollFactor;
             if (counter >= scrollLimit || this.showListParent.current.scrollLeft === 0) clearInterval(scrollTimer)
         }, 10)
-    }
+    };
     handleClick = (event) => event.target.className === 'leftBtn' ? this.animateScroll('left') : this.animateScroll('right');
 
     render() {
         return (
             <ShowContainer>
-                <Heading>Downloaded</Heading>
+                <h1>Downloaded</h1>
                 <List ref={this.showListParent}>
                     {this.props.shows.history.map(show => <Card key={show.id} show={show}/>)}
                 </List>
-                <ScrollBtn>
+                <div className={'scrollBtn'}>
                     <img className='leftBtn' src={leftArrow} alt="" onClick={this.handleClick}/>
                     <img className='rightBtn' src={rightArrow} alt="" onClick={this.handleClick}/>
-                </ScrollBtn>
+                </div>
             </ShowContainer>
         );
-    }
+    };
 }
 
 
