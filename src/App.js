@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import Shows from "./components/Shows";
 import TopBar from "./components/TopBar";
+import Calendar from "./components/Calendar";
 import placeholderImg from "./images/poster-placeholder.jpg"
 
 class App extends Component{
@@ -110,6 +111,7 @@ class App extends Component{
             <div className="App">
                 <TopBar queue={this.getQueueData} doUpdate={this.updateAPIData} episodeNum={this.buildEpisodeNum}/>
                 <Shows shows={this.state.shows}/>
+                <Calendar calendar={this.state.shows.calendar}/>
             </div>
         );
     };

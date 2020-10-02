@@ -5,7 +5,6 @@ import leftArrow from '../images/left.svg'
 import rightArrow from '../images/right.svg'
 
 const ShowContainer = styled.div`
-  height: 100%;
   width:100%;
   h1 {
     font-size: 1.5em;

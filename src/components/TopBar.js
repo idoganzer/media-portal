@@ -42,7 +42,7 @@ const TopBarContainer = styled.div`
     }
 `;
 const NavigationMenu = styled.nav`
-    height: calc(100vh - 25px);
+    height: auto;
     width: 300px;
     background: #282828;
     position: absolute;
