@@ -71,12 +71,11 @@ class Calendar extends Component{
                     this.props.calendar
                         .filter(dailyShows => this.makeDateString(new Date(dailyShows.date)) === day)
                         .map(show => {
-                            console.log(show);
                             return (
                                 <li key={show.id}>
                                     <h2>{show.name}</h2>
                                     <p>Episode {show.episodeNumber}</p>
-                                    <span>{new Date(show.date).toLocaleString('default', {hourCycle: 'h24', timeStyle: 'short'})}</span>
+                                    <span>{new Date(show.date).toLocaleString('en-GB', {hourCycle: 'h24', timeStyle: 'short'})}</span>
                                 </li>
                             )
                         })
@@ -84,7 +83,6 @@ class Calendar extends Component{
             </ul>)
         )
     }
-
 
     render() {
         return (
@@ -96,9 +94,3 @@ class Calendar extends Component{
 }
 
 export default Calendar
-
-// let x = this.props.calendar
-//     .filter(dailyShows => this.makeDateString(new Date(dailyShows.date)) === day).map(show => {
-//         console.log(new Date(show.date).toLocaleString('default', {hourCycle: 'h24', timeStyle: 'short'}));
-//         return show
-//     })

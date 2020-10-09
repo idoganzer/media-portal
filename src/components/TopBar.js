@@ -7,7 +7,7 @@ import {ReactComponent as DownloadIcon} from "../images/download.svg";
 import placeholderImg from "../images/banner-placeholder.jpg";
 
 const TopBarContainer = styled.div`
-    height: 25px;
+    height: 35px;
     width:100%;
     display: flex;
     position: relative;

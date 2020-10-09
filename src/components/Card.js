@@ -6,29 +6,38 @@ const ListItem = styled.li`
   width: 272px;
   height: 400px;
   background: #282828;
-  transition: width 80ms ease-in-out;
-  display: flex;
-  img {
-    height: inherit;
-    cursor: pointer;
+  perspective: 500px;
+  cursor: pointer;
+  .cardInner {
+    transition: transform 0.4s cubic-bezier(1,0.5,0,1);
+    transform-style: preserve-3d;
+    position: relative;
   }
-  
-  &.isExtended {
-    width: 500px;
+  .cardFront {
+    z-index: 2;
+    transform: rotateY(0deg);
+  }
+  .cardBack {
+    transform: rotateY(180deg);
+  }
+  .cardFront, .cardBack, img {
+    width: 272px;
+    height: 400px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    backface-visibility: hidden;
+  }
+.cardInner.isExtended {
+    transform: rotateY(180deg);
   }
 `;
 const ShowInfoContainer = styled.div`
-  height: inherit;
-  width: inherit;
+  height: 100%;
+  width: 100%;
   display: flex;
-  transition: transform ${props => props.isExtended ? '20ms' : '1ms'} linear;
-  transition-delay: ${props => props.isExtended ? '70ms' : '0'};
-  transform: scaleX(0);
-  transform-origin: 0 100%;
   flex-direction: column;
-  &.isExtended {
-    transform: scalex(1);
-  }
+  
   h1, h2, span {
     padding: 0 10px;
     box-sizing: border-box;
@@ -61,23 +70,22 @@ class Card extends Component{
         };
     };
     togglePanel = () => this.setState({ isExtended: !this.state.isExtended });
-    //TODO move this
-    buildEpisodeNum = (season, episode) => {
-        return 'S' + (season.toString().length > 1 ? season : '0' + season) +
-            'E' + (episode.toString().length > 1 ? episode : '0' + episode)
-    };
+
     render() {
         return (
-            <ListItem
-                className={this.state.isExtended ? 'isExtended': null}>
-                <img src={this.props.show.img} alt="" onClick={this.togglePanel}/>
-                <ShowInfoContainer isExtended={this.state.isExtended} className={this.state.isExtended ? 'isExtended': null}>
-                    <h1>{this.props.show.name}</h1>
-                    <h2>{this.props.show.title}</h2>
-                    <span>
-                        {this.buildEpisodeNum(this.props.show.seasonNumber, this.props.show.episodeNumber)}
-                    </span>
-                </ShowInfoContainer>
+            <ListItem className={this.state.isExtended ? 'isExtended': null} onClick={this.togglePanel}>
+                <div className={`cardInner ${this.state.isExtended ? 'isExtended': null}`}>
+                    <div className='cardFront'>
+                        <img src={this.props.show.img} alt=""/>
+                    </div>
+                    <ShowInfoContainer className={'cardBack'}>
+                        <h1>{this.props.show.name}</h1>
+                        <h2>{this.props.show.title}</h2>
+                        <span>
+                            {this.props.buildEpisodeNum(this.props.show.seasonNumber, this.props.show.episodeNumber)}
+                        </span>
+                    </ShowInfoContainer>
+                </div>
             </ListItem>
         );
     };
