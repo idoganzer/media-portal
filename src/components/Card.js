@@ -5,7 +5,7 @@ import styled from 'styled-components';
 const ListItem = styled.li`
   width: 272px;
   height: 400px;
-  background: #282828;
+  background: ${props => props.theme.menuColor};
   perspective: 500px;
   cursor: pointer;
   .cardInner {
@@ -49,7 +49,7 @@ const ShowInfoContainer = styled.div`
     font-weight: bold;
     margin: 10px 0 5px 0;
     padding-bottom: 10px;
-    border-bottom: 1px solid #414141;
+    border-bottom: 1px solid ${props => props.theme.headerBorder};
   }
   h2 {
     flex: 2 1 auto;

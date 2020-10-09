@@ -11,7 +11,7 @@ const ShowContainer = styled.div`
     padding: 5px 10px;
     margin-bottom: 10px;
     font-weight: bold;
-    border-bottom: 1px solid #414141;
+    border-bottom: 1px solid ${props => props.theme.headerBorder};
   }
   .scrollBtn {
     width: 60px;

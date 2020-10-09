@@ -13,7 +13,7 @@ const TopBarContainer = styled.div`
     position: relative;
     align-items: center;
     justify-content: space-between;
-    background: #2b2b2b;
+    background: ${props => props.theme.fgColor};
     margin-bottom: 5px;
     h1 {
       flex-grow: 2;
@@ -44,7 +44,7 @@ const TopBarContainer = styled.div`
 const NavigationMenu = styled.nav`
     height: auto;
     width: 300px;
-    background: #282828;
+    background: ${props => props.theme.menuColor};
     position: absolute;
     top: 25px;
     right: -300px;
@@ -59,7 +59,7 @@ const NavigationMenu = styled.nav`
     li {
       padding: 15px 5px;
       margin-left: 10px;
-      border-bottom: 1px solid #303030;
+      border-bottom: 1px solid ${props => props.theme.menuBorder};
        &:last-child {
         border: none;
        }
@@ -67,7 +67,7 @@ const NavigationMenu = styled.nav`
 
     &.isExtended {
       right: 0;
-      border-left: 10px solid #227ccb;
+      border-left: 10px solid ${props => props.theme.mainBorder};
     }
 `;
 class TopBar extends Component{

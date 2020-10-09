@@ -1,9 +1,18 @@
 import React, {Component} from "react";
+import { ThemeProvider } from 'styled-components';
 import Shows from "./components/Shows";
 import TopBar from "./components/TopBar";
 import Calendar from "./components/Calendar";
-import placeholderImg from "./images/poster-placeholder.jpg"
-
+import placeholderImg from './images/poster-placeholder.jpg'
+const theme = {
+    bgColor: '#1f1f1f',
+    fgColor: '#2b2b2b',
+    menuColor: '#282828',
+    mainBorder: '#227ccb',
+    menuBorder: '#303030',
+    headerBorder: '#414141',
+    textColor: '#f6f6f6'
+};
 class App extends Component{
     constructor() {
         super();
@@ -109,9 +118,11 @@ class App extends Component{
     render() {
         return (
             <div className="App">
-                <TopBar queue={this.getQueueData} doUpdate={this.updateAPIData} episodeNum={this.buildEpisodeNum}/>
-                <Shows shows={this.state.shows} buildEpisodeNum={this.buildEpisodeNum}/>
-                <Calendar calendar={this.state.shows.calendar}/>
+                <ThemeProvider theme={theme}>
+                    <TopBar queue={this.getQueueData} doUpdate={this.updateAPIData} episodeNum={this.buildEpisodeNum}/>
+                    <Shows shows={this.state.shows} buildEpisodeNum={this.buildEpisodeNum}/>
+                    <Calendar calendar={this.state.shows.calendar}/>
+                </ThemeProvider>
             </div>
         );
     };
