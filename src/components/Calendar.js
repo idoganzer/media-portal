@@ -12,14 +12,14 @@ const CalendarContainer = styled.div`
       padding-bottom: 5px;
     }
     li {
-      background: #292929;
+      background: ${props => props.theme.menuColor};
       display: grid;
       grid-template-columns: 1fr 1fr;
       grid-template-rows: fit-content() 1fr;
       padding: 5px;
       margin: 7px 0;
       &:nth-child(odd) {
-        background: #303030;
+        background: ${props => props.theme.menuBorder};
       }
       h2 {
         font-size: 1rem;
@@ -80,7 +80,8 @@ class Calendar extends Component{
                             )
                         })
                 }
-            </ul>)
+            </ul>
+            )
         )
     }
 

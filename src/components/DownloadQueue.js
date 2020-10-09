@@ -2,9 +2,8 @@ import React, {Component} from "react";
 import styled from "styled-components";
 
 const QueueContainer = styled.div`
-    margin-bottom: 15px;
-    //padding: 0 10px ;   
-    border-top: 5px solid #303030;
+    margin-bottom: 15px; 
+    border-top: 5px solid ${props => props.theme.menuBorder};
     p {
       padding: 4px;
     }
