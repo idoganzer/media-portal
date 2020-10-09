@@ -110,7 +110,7 @@ class App extends Component{
         return (
             <div className="App">
                 <TopBar queue={this.getQueueData} doUpdate={this.updateAPIData} episodeNum={this.buildEpisodeNum}/>
-                <Shows shows={this.state.shows}/>
+                <Shows shows={this.state.shows} buildEpisodeNum={this.buildEpisodeNum}/>
                 <Calendar calendar={this.state.shows.calendar}/>
             </div>
         );
