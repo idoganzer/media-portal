@@ -18,8 +18,11 @@ const CalendarContainer = styled.div`
       grid-template-rows: fit-content() 1fr;
       padding: 5px;
       margin: 7px 0;
-      &:nth-child(odd) {
-        background: ${props => props.theme.menuBorder};
+      &.hasFile {
+        background: ${props => props.theme.hasFile};
+      }
+      &.missingFile {
+        background: ${props => props.theme.missingFile};
       }
       h2 {
         font-size: 1rem;
@@ -63,24 +66,27 @@ class Calendar extends Component{
         }
         return week
     };
+    setItemClass = ({date, hasFile}) => hasFile ? 'hasFile' : (new Date(date) < new Date() ? 'missingFile' : null);
+
     buildCal = () => {
         return (
-            this.state.weekArray.map(day => <ul key={day}>
-                <h1>{day}</h1>
-                {
-                    this.props.calendar
-                        .filter(dailyShows => this.makeDateString(new Date(dailyShows.date)) === day)
-                        .map(show => {
-                            return (
-                                <li key={show.id}>
-                                    <h2>{show.name}</h2>
-                                    <p>Episode {show.episodeNumber}</p>
-                                    <span>{new Date(show.date).toLocaleString('en-GB', {hourCycle: 'h24', timeStyle: 'short'})}</span>
-                                </li>
-                            )
-                        })
-                }
-            </ul>
+            this.state.weekArray.map(day =>
+                <ul key={day}>
+                    <h1>{day}</h1>
+                    {
+                        this.props.calendar
+                            .filter(dailyShows => this.makeDateString(new Date(dailyShows.date)) === day)
+                            .map(show => {
+                                return (
+                                    <li key={show.id} className={this.setItemClass(show)}>
+                                        <h2>{show.name}</h2>
+                                        <p>Episode {show.episodeNumber}</p>
+                                        <span>{new Date(show.date).toLocaleString('en-GB', {hourCycle: 'h24', timeStyle: 'short'})}</span>
+                                    </li>
+                                )
+                            })
+                    }
+                </ul>
             )
         )
     }

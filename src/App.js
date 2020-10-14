@@ -9,6 +9,8 @@ const theme = {
     fgColor: '#2b2b2b',
     menuColor: '#282828',
     mainBorder: '#227ccb',
+    hasFile: '#358c35',
+    missingFile: '#8c3551',
     menuBorder: '#303030',
     headerBorder: '#414141',
     textColor: '#f6f6f6'
