@@ -44,10 +44,11 @@ class App extends Component{
 
     componentDidMount = () => {
         this.updateAPIData();
+        setInterval(() => {this.updateAPIData()}, 30000);
     }
     updateAPIData = () => {
         this.getAPIData()
-            .then(res => this.parseResults(res))
+            .then(res => this.sortDuplicates(this.parseResults(res)))
             .then(records => this.setState(records))
             .catch(err => console.log(err));
     };
@@ -79,17 +80,39 @@ class App extends Component{
                     .map(show => {
                         return {
                             id: show.id,
+                            showId: show.seriesId,
+                            episodeId: show.episodeId,
                             date: show.episode.airDateUtc,
+                            downloaded: Math.round(new Date(show.date).getTime() / 1000),
                             name: show.series.title,
                             title: show.episode.title,
                             episodeNumber: show.episode.episodeNumber,
                             seasonNumber: show.episode.seasonNumber,
-                            status: show.series.status,
-                            img: this.filterPosters(show.series.images)
+                            img: this.filterPosters(show.series.images),
+                            otherEpisodes: []
                         }
                     })
             }
         }
+    }
+    sortDuplicates = data => {
+        data.shows.history = Object.values(
+            data.shows.history.reduce((acc, next) => {
+                (acc[next.showId] || (acc[next.showId] = [])).push(next);
+                return acc
+            }, {}))
+            .reduce((acc, next) => {
+                if (next.length === 1) {
+                    return acc.concat(next);
+                } else {
+                    for (let i = 1; i < next.length; i++) {
+                        next[0].otherEpisodes.push(next[i]);
+                    }
+                    return acc.concat(next[0]);
+                }
+            },[])
+            .sort((a,b) => (a.downloaded > b.downloaded) ? -1 : ((b.downloaded > a.downloaded) ?  1 : 0));
+        return data
     }
     filterPosters = imageObj => {
         const posters = imageObj.filter(img => img.coverType === 'poster')[0]?.url;

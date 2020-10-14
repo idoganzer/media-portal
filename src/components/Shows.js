@@ -58,8 +58,8 @@ class Shows extends Component{
     componentDidMount = () => this.showListParent.current.scrollLeft = 0;
 
     animateScroll = direction => {
-        const scrollLimit = 410,
-              scrollFactor = 15;
+        const scrollLimit = 820,
+              scrollFactor = 30;
 
         let counter = 0;
 
@@ -76,7 +76,9 @@ class Shows extends Component{
             <ShowContainer>
                 <h1>Downloaded</h1>
                 <List ref={this.showListParent}>
-                    {this.props.shows.history.map(show => <Card key={show.id} show={show} buildEpisodeNum={this.props.buildEpisodeNum}/>)}
+                    {this.props.shows.history
+                        .map(show =>
+                            <Card key={show.id || show[0].id} show={show} buildEpisodeNum={this.props.buildEpisodeNum}/>)}
                 </List>
                 <div className={'scrollBtn'}>
                     <img className='leftBtn' src={leftArrow} alt="" onClick={this.handleClick}/>
