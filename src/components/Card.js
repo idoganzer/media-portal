@@ -100,7 +100,7 @@ class Card extends Component{
                         <img src={show.img} alt=""/>
                     </div>
                     <ShowInfoContainer className={'cardBack'}>
-                        <h1>{show.name}</h1>
+                        <h1><a rel="noopener noreferrer" href={show.URL} target='_blank'>{show.name}</a></h1>
                         <div>{show.title}</div>
                         {show.otherEpisodes
                             .map(other =>
@@ -119,7 +119,7 @@ class Card extends Component{
                     <img src={show.img} alt=""/>
                 </div>
                 <ShowInfoContainer className={'cardBack'}>
-                    <h1>{show.name}</h1>
+                    <h1><a rel="noopener noreferrer" href={show.URL} target='_blank'>{show.name}</a></h1>
                     <div>{show.title}</div>
                     <span>{this.props.buildEpisodeNum(show.seasonNumber, show.episodeNumber)}</span>
                 </ShowInfoContainer>

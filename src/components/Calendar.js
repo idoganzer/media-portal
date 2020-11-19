@@ -2,8 +2,6 @@ import React, {Component} from "react";
 import styled from "styled-components";
 
 const CalendarContainer = styled.div`
-  width: 98vw;
-  margin: 25px auto 15px auto;
   ul {
     margin-bottom: 25px;
     h1 {
@@ -18,12 +16,16 @@ const CalendarContainer = styled.div`
       grid-template-rows: fit-content() 1fr;
       padding: 5px;
       margin: 7px 0;
+      &:nth-child(odd) {
+         background: ${props => props.theme.menuBorder};
+      }
       &.hasFile {
         background: ${props => props.theme.hasFile};
       }
       &.missingFile {
         background: ${props => props.theme.missingFile};
       }
+
       h2 {
         font-size: 1rem;
         margin-bottom: 5px;
@@ -41,6 +43,11 @@ const CalendarContainer = styled.div`
         font-weight: bold;
       }
     }
+  }
+  
+  @media(max-width: 500px) {
+      //width: 98vw;
+      //margin: 25px auto 15px auto;
   }
 `;
 class Calendar extends Component{

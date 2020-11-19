@@ -1,20 +1,29 @@
 import React, {Component} from "react";
-import { ThemeProvider } from 'styled-components';
+import styled, { ThemeProvider } from 'styled-components';
 import Shows from "./components/Shows";
 import TopBar from "./components/TopBar";
 import Calendar from "./components/Calendar";
+import Catalog from "./components/Catalog";
 import placeholderImg from './images/poster-placeholder.jpg'
+
 const theme = {
     bgColor: '#1f1f1f',
-    fgColor: '#2b2b2b',
+    fgColor: '#353535',
     menuColor: '#282828',
-    mainBorder: '#227ccb',
+    mainBorder: '#EFC958',
     hasFile: '#358c35',
     missingFile: '#8c3551',
     menuBorder: '#303030',
     headerBorder: '#414141',
     textColor: '#f6f6f6'
 };
+
+const ContentContainer = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 7px;
+  margin: 30px 7px 15px 7px;
+`;
 class App extends Component{
     constructor() {
         super();
@@ -31,16 +40,22 @@ class App extends Component{
             'queue': {
                 'base' : process.env.REACT_APP_SONARR_API_URL + '/queue?',
                 'key': 'apikey=' + process.env.REACT_APP_SONARR_API_KEY
+            },
+            'catalog': {
+                'base': process.env.REACT_APP_SONARR_API_URL + '/series?',
+                'key': 'apikey=' + process.env.REACT_APP_SONARR_API_KEY
             }
         }
         this.state = {
             shows: {
                 calendar: [],
-                history: []
+                history: [],
+                catalog: []
             },
             movies: {
                 history: []
-            },
+            }
+
         };
     }
 
@@ -57,11 +72,13 @@ class App extends Component{
     getAPIData = async () => {
         let response = await Promise.all([
             fetch(this.createRequestString(this.apiObj.calendar, 7)),
-            fetch(this.createRequestString(this.apiObj.history, 50))
+            fetch(this.createRequestString(this.apiObj.history, 30)),
+            fetch(this.createRequestString(this.apiObj.catalog, null))
         ]);
-        return [await response[0].json(), await response[1].json()]
+        return [await response[0].json(), await response[1].json(), await response[2].json()]
     }
     getQueueData = async () => await fetch(this.createRequestString(this.apiObj.queue, null));
+
     parseResults = res => {
         return {
             shows: {
@@ -91,9 +108,15 @@ class App extends Component{
                             episodeNumber: show.episode.episodeNumber,
                             seasonNumber: show.episode.seasonNumber,
                             img: this.filterPosters(show.series.images),
+                            URL: process.env.REACT_APP_SONARR_BASE_URL + '/sonarr/series/' + show.series.titleSlug,
                             otherEpisodes: []
                         }
-                    })
+                    }),
+                catalog: res[2].map(show => {
+                    show.images = process.env.REACT_APP_SONARR_BASE_URL + this.filterPosters(show.images);
+                    show.URL = process.env.REACT_APP_SONARR_BASE_URL + '/sonarr/series/' + show.titleSlug;
+                    return show
+                })
             }
         }
     }
@@ -146,7 +169,10 @@ class App extends Component{
                 <ThemeProvider theme={theme}>
                     <TopBar queue={this.getQueueData} doUpdate={this.updateAPIData} episodeNum={this.buildEpisodeNum}/>
                     <Shows shows={this.state.shows} buildEpisodeNum={this.buildEpisodeNum}/>
-                    <Calendar calendar={this.state.shows.calendar}/>
+                    <ContentContainer>
+                        <Calendar calendar={this.state.shows.calendar}/>
+                        <Catalog catalog={this.state.shows.catalog}/>
+                    </ContentContainer>
                 </ThemeProvider>
             </div>
         );
