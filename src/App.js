@@ -91,6 +91,7 @@ class App extends Component{
                         episodeNumber: show.episodeNumber,
                         status: show.series.status,
                         hasFile: show.hasFile,
+                        URL: process.env.REACT_APP_SONARR_BASE_URL + '/sonarr/series/' + show.series.titleSlug,
                         img: this.filterPosters(show.series.images)
                     }
                 }),

@@ -26,12 +26,12 @@ const CalendarContainer = styled.div`
         background: ${props => props.theme.missingFile};
       }
 
-      h2 {
+      a {
         font-size: 1rem;
         margin-bottom: 5px;
         grid-column: 1 / span 2;
       }
-      h2, p {
+      a, p {
         margin-left: 3px;
       }
       p, span {
@@ -43,11 +43,6 @@ const CalendarContainer = styled.div`
         font-weight: bold;
       }
     }
-  }
-  
-  @media(max-width: 500px) {
-      //width: 98vw;
-      //margin: 25px auto 15px auto;
   }
 `;
 class Calendar extends Component{
@@ -86,7 +81,7 @@ class Calendar extends Component{
                             .map(show => {
                                 return (
                                     <li key={show.id} className={this.setItemClass(show)}>
-                                        <h2>{show.name}</h2>
+                                        <a rel="noopener noreferrer" href={show.URL} target='_blank'><h2>{show.name}</h2></a>
                                         <p>Episode {show.episodeNumber}</p>
                                         <span>{new Date(show.date).toLocaleString('en-GB', {hourCycle: 'h24', timeStyle: 'short'})}</span>
                                     </li>
