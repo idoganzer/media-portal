@@ -30,6 +30,9 @@ const ShowContainer = styled.div`
       display: none;
     }
    }
+  &.hidden {
+     display: none;
+  }
 `;
 
 const List = styled.ul`
@@ -73,7 +76,7 @@ class Shows extends Component{
 
     render() {
         return (
-            <ShowContainer>
+            <ShowContainer className={this.props.shows.history.length === 0 ? 'hidden' : ' '}>
                 <h1>Downloaded</h1>
                 <List ref={this.showListParent}>
                     {this.props.shows.history
