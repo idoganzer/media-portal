@@ -23,7 +23,7 @@ const ContentContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 7px;
-  margin: 40px 7px 15px 7px;
+  margin: 30px 7px 15px 7px;
 `;
 class App extends Component{
     constructor() {
