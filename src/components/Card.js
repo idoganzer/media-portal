@@ -16,6 +16,21 @@ const ListItem = styled.li`
   .cardFront {
     z-index: 2;
     transform: rotateY(0deg);
+    div {
+      width: 1.5rem;
+      height: 1.5rem;
+      line-height: 1.4rem;
+      text-align: center;
+      position: absolute;
+      top: 5px;
+      right: 10px;
+      z-index: 3;
+      background: #f61e1e;
+      padding: 2px;
+      border-radius: 50%;
+      font-weight: bold;
+      font-size: 0.9em;
+    }
   }
   .cardBack {
     transform: rotateY(180deg);
@@ -38,7 +53,7 @@ const ShowInfoContainer = styled.div`
   display: flex;
   flex-direction: column;
   
-  h1, h2, span {
+  h1, div, span {
     padding: 0 10px;
     box-sizing: border-box;
     line-height: 1.1em;
@@ -51,9 +66,11 @@ const ShowInfoContainer = styled.div`
     padding-bottom: 10px;
     border-bottom: 1px solid ${props => props.theme.headerBorder};
   }
-  h2 {
-    flex: 2 1 auto;
-    align-self: stretch;
+  div {
+    padding-bottom: 5px;
+    &:last-of-type {
+      flex: 1 1 auto;
+    }
   }
   span {
     align-self: flex-end;
@@ -70,21 +87,51 @@ class Card extends Component{
         };
     };
     togglePanel = () => this.setState({ isExtended: !this.state.isExtended });
+    buildCard = show => {
+        show.otherEpisodes = show.otherEpisodes.filter(
+            (other, i, array) => show.episodeId !== other.episodeId
+                && array.findIndex(target => (target.episodeId === other.episodeId)) === i
+        );
+        if (show.otherEpisodes.length > 0) {
+            return (
+                <React.Fragment>
+                    <div className='cardFront'>
+                        <div>+{show.otherEpisodes.length}</div>
+                        <img src={show.img} alt=""/>
+                    </div>
+                    <ShowInfoContainer className={'cardBack'}>
+                        <h1><a rel="noopener noreferrer" href={show.URL} target='_blank'>{show.name}</a></h1>
+                        <div>{show.title}</div>
+                        {show.otherEpisodes
+                            .map(other =>
+                                <div key={other.episodeId}>
+                                    {other.title} - {this.props.buildEpisodeNum(other.seasonNumber, other.episodeNumber)}
+                                </div>
+                            )}
+                        <span>{this.props.buildEpisodeNum(show.seasonNumber, show.episodeNumber)}</span>
+                    </ShowInfoContainer>
+                </React.Fragment>
+            )
+        }
+        return (
+            <React.Fragment>
+                <div className='cardFront'>
+                    <img src={show.img} alt=""/>
+                </div>
+                <ShowInfoContainer className={'cardBack'}>
+                    <h1><a rel="noopener noreferrer" href={show.URL} target='_blank'>{show.name}</a></h1>
+                    <div>{show.title}</div>
+                    <span>{this.props.buildEpisodeNum(show.seasonNumber, show.episodeNumber)}</span>
+                </ShowInfoContainer>
+            </React.Fragment>
+        )
+    };
 
     render() {
         return (
             <ListItem className={this.state.isExtended ? 'isExtended': null} onClick={this.togglePanel}>
                 <div className={`cardInner ${this.state.isExtended ? 'isExtended': null}`}>
-                    <div className='cardFront'>
-                        <img src={this.props.show.img} alt=""/>
-                    </div>
-                    <ShowInfoContainer className={'cardBack'}>
-                        <h1>{this.props.show.name}</h1>
-                        <h2>{this.props.show.title}</h2>
-                        <span>
-                            {this.props.buildEpisodeNum(this.props.show.seasonNumber, this.props.show.episodeNumber)}
-                        </span>
-                    </ShowInfoContainer>
+                    {this.buildCard(this.props.show)}
                 </div>
             </ListItem>
         );

@@ -2,8 +2,6 @@ import React, {Component} from "react";
 import styled from "styled-components";
 
 const CalendarContainer = styled.div`
-  width: 98vw;
-  margin: 25px auto 15px auto;
   ul {
     margin-bottom: 25px;
     h1 {
@@ -19,14 +17,21 @@ const CalendarContainer = styled.div`
       padding: 5px;
       margin: 7px 0;
       &:nth-child(odd) {
-        background: ${props => props.theme.menuBorder};
+         background: ${props => props.theme.menuBorder};
       }
-      h2 {
+      &.hasFile {
+        background: ${props => props.theme.hasFile};
+      }
+      &.missingFile {
+        background: ${props => props.theme.missingFile};
+      }
+
+      a {
         font-size: 1rem;
         margin-bottom: 5px;
         grid-column: 1 / span 2;
       }
-      h2, p {
+      a, p {
         margin-left: 3px;
       }
       p, span {
@@ -63,24 +68,27 @@ class Calendar extends Component{
         }
         return week
     };
+    setItemClass = ({date, hasFile}) => hasFile ? 'hasFile' : (new Date(date) < new Date() ? 'missingFile' : null);
+
     buildCal = () => {
         return (
-            this.state.weekArray.map(day => <ul key={day}>
-                <h1>{day}</h1>
-                {
-                    this.props.calendar
-                        .filter(dailyShows => this.makeDateString(new Date(dailyShows.date)) === day)
-                        .map(show => {
-                            return (
-                                <li key={show.id}>
-                                    <h2>{show.name}</h2>
-                                    <p>Episode {show.episodeNumber}</p>
-                                    <span>{new Date(show.date).toLocaleString('en-GB', {hourCycle: 'h24', timeStyle: 'short'})}</span>
-                                </li>
-                            )
-                        })
-                }
-            </ul>
+            this.state.weekArray.map(day =>
+                <ul key={day}>
+                    <h1>{day}</h1>
+                    {
+                        this.props.calendar
+                            .filter(dailyShows => this.makeDateString(new Date(dailyShows.date)) === day)
+                            .map(show => {
+                                return (
+                                    <li key={show.id} className={this.setItemClass(show)}>
+                                        <a rel="noopener noreferrer" href={show.URL} target='_blank'><h2>{show.name}</h2></a>
+                                        <p>Episode {show.episodeNumber}</p>
+                                        <span>{new Date(show.date).toLocaleString('en-GB', {hourCycle: 'h24', timeStyle: 'short'})}</span>
+                                    </li>
+                                )
+                            })
+                    }
+                </ul>
             )
         )
     }

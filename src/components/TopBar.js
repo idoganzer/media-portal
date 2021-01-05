@@ -46,7 +46,7 @@ const NavigationMenu = styled.nav`
     width: 300px;
     background: ${props => props.theme.menuColor};
     position: absolute;
-    top: 25px;
+    top: 35px;
     right: -300px;
     z-index: 2;
     overflow-y: auto;
@@ -96,7 +96,7 @@ class TopBar extends Component{
             return {
                 id: show.id,
                 title: show.series.title,
-                episode: this.props.episodeNum(show.episode.episodeNumber, show.episode.seasonNumber),
+                episode: this.props.episodeNum(show.episode.seasonNumber, show.episode.episodeNumber),
                 percentComplete: this.calcPercent(show.size, show.sizeleft),
                 banner: this.filterBanner(show.series.images)
             }

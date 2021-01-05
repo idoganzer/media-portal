@@ -1,21 +1,34 @@
 import React, {Component} from "react";
-import { ThemeProvider } from 'styled-components';
+import styled, { ThemeProvider } from 'styled-components';
 import Shows from "./components/Shows";
 import TopBar from "./components/TopBar";
 import Calendar from "./components/Calendar";
+import Catalog from "./components/Catalog";
 import placeholderImg from './images/poster-placeholder.jpg'
+
+// General shared Css values
 const theme = {
     bgColor: '#1f1f1f',
-    fgColor: '#2b2b2b',
+    fgColor: '#353535',
     menuColor: '#282828',
-    mainBorder: '#227ccb',
+    mainBorder: '#EFC958',
+    hasFile: '#358c35',
+    missingFile: '#8c3551',
     menuBorder: '#303030',
     headerBorder: '#414141',
     textColor: '#f6f6f6'
 };
+// style for the main site contrainer
+const ContentContainer = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 7px;
+  margin: 30px 7px 15px 7px;
+`;
 class App extends Component{
     constructor() {
         super();
+        // Load environmental variables for API keys and Urls
         this.apiObj = {
             'calendar': {
                 'base': process.env.REACT_APP_SONARR_API_URL + '/calendar?',
@@ -29,39 +42,70 @@ class App extends Component{
             'queue': {
                 'base' : process.env.REACT_APP_SONARR_API_URL + '/queue?',
                 'key': 'apikey=' + process.env.REACT_APP_SONARR_API_KEY
+            },
+            'catalog': {
+                'base': process.env.REACT_APP_SONARR_API_URL + '/series?',
+                'key': 'apikey=' + process.env.REACT_APP_SONARR_API_KEY
             }
         }
+        // Main state object
         this.state = {
             shows: {
                 calendar: [],
-                history: []
+                history: [],
+                catalog: []
             },
             movies: {
                 history: []
-            },
+            }
+
         };
     }
 
+    /**
+     *  Lifecycle hook
+     *  When the main app component is loaded get the initial data and update it every 30 seconds
+     */
     componentDidMount = () => {
         this.updateAPIData();
+        setInterval(() => {this.updateAPIData()}, 30000);
     }
+    /**
+     * Calls, parses and then stores data from the api as a state
+     */
     updateAPIData = () => {
         this.getAPIData()
-            .then(res => this.parseResults(res))
+            .then(res => this.sortDuplicates(this.parseResults(res)))
             .then(records => this.setState(records))
             .catch(err => console.log(err));
     };
+    /**
+     * Get request to the api, returns an array of promise responses
+     * @returns {Promise<any[]>}
+     */
     getAPIData = async () => {
         let response = await Promise.all([
             fetch(this.createRequestString(this.apiObj.calendar, 7)),
-            fetch(this.createRequestString(this.apiObj.history, 50))
+            fetch(this.createRequestString(this.apiObj.history, 30)),
+            fetch(this.createRequestString(this.apiObj.catalog, null))
         ]);
-        return [await response[0].json(), await response[1].json()]
+        return [await response[0].json(), await response[1].json(), await response[2].json()]
     }
+    /**
+     * Get request to check if the download queue has been updated
+     * @returns {Promise<Response>}
+     */
     getQueueData = async () => await fetch(this.createRequestString(this.apiObj.queue, null));
+
+    /**
+     * Parses and sorts the Api response
+     * @param res
+     * @returns {{shows: {calendar: *, catalog: *, history: *}}}
+     */
     parseResults = res => {
         return {
             shows: {
+                // Upcoming shows
                 calendar: res[0].map(show => {
                     return {
                         id: show.id,
@@ -71,30 +115,79 @@ class App extends Component{
                         episodeNumber: show.episodeNumber,
                         status: show.series.status,
                         hasFile: show.hasFile,
+                        URL: process.env.REACT_APP_SONARR_BASE_URL + '/sonarr/series/' + show.series.titleSlug,
                         img: this.filterPosters(show.series.images)
                     }
                 }),
+                // Downloaded shows
                 history: res[1].records
                     .filter(value => value.eventType === 'downloadFolderImported')
                     .map(show => {
                         return {
                             id: show.id,
+                            showId: show.seriesId,
+                            episodeId: show.episodeId,
                             date: show.episode.airDateUtc,
+                            downloaded: Math.round(new Date(show.date).getTime() / 1000),
                             name: show.series.title,
                             title: show.episode.title,
                             episodeNumber: show.episode.episodeNumber,
                             seasonNumber: show.episode.seasonNumber,
-                            status: show.series.status,
-                            img: this.filterPosters(show.series.images)
+                            img: this.filterPosters(show.series.images),
+                            URL: process.env.REACT_APP_SONARR_BASE_URL + '/sonarr/series/' + show.series.titleSlug,
+                            otherEpisodes: []
                         }
-                    })
+                    }),
+                // List of tracked shows
+                catalog: res[2].map(show => {
+                    show.images = this.filterPosters(show.images).indexOf('static') === -1
+                        ? process.env.REACT_APP_SONARR_BASE_URL + this.filterPosters(show.images)
+                        : this.filterPosters(show.images);
+
+                    show.URL = process.env.REACT_APP_SONARR_BASE_URL + '/sonarr/series/' + show.titleSlug;
+                    return show
+                })
             }
         }
     }
+    /**
+     * Sorts shows with multiple downloaded episodes into a single object and removes duplicates
+     * @param data
+     * @returns {*}
+     */
+    sortDuplicates = data => {
+        data.shows.history = Object.values(
+            data.shows.history.reduce((acc, next) => {
+                (acc[next.showId] || (acc[next.showId] = [])).push(next);
+                return acc
+            }, {}))
+            .reduce((acc, next) => {
+                if (next.length === 1) {
+                    return acc.concat(next);
+                } else {
+                    for (let i = 1; i < next.length; i++) {
+                        next[0].otherEpisodes.push(next[i]);
+                    }
+                    return acc.concat(next[0]);
+                }
+            },[])
+            .sort((a,b) => (a.downloaded > b.downloaded) ? -1 : ((b.downloaded > a.downloaded) ?  1 : 0));
+        return data
+    }
+    /**
+     * Returns only images of the type poster, when none exits then returns a placeholder image
+     * @param imageObj
+     * @returns {*}
+     */
     filterPosters = imageObj => {
         const posters = imageObj.filter(img => img.coverType === 'poster')[0]?.url;
         return posters === undefined ? placeholderImg : posters
     }
+    /**
+     * Returns a list of dates from an included range
+     * @param range
+     * @returns {string|string[]}
+     */
     getDate = range => {
         let now = new Date(),
             startString = now.getFullYear() + "-" + (now.getMonth() + 1) + "-" + (now.getDate());
@@ -106,11 +199,23 @@ class App extends Component{
             return [startString,endString]
         }
     }
+    /**
+     * Formats the request string
+     * @param obj
+     * @param range
+     * @returns {string|*}
+     */
     createRequestString = (obj, range) => {
         if (range === null) return obj.base + obj.key;
         if (obj.hasOwnProperty('options')) return obj.base + '&' + obj.options + range + '&' + obj.key;
         return obj.base + obj.key + '&start=' + this.getDate(range)[0] + '&end=' + this.getDate(range)[1];
     }
+    /**
+     * Takes an episode and season number and returns it in Tv show format (S00E00)
+     * @param season
+     * @param episode
+     * @returns {string}
+     */
     buildEpisodeNum = (season, episode) => {
         return 'S' + (season.toString().length > 1 ? season : '0' + season) +
             'E' + (episode.toString().length > 1 ? episode : '0' + episode)
@@ -121,7 +226,10 @@ class App extends Component{
                 <ThemeProvider theme={theme}>
                     <TopBar queue={this.getQueueData} doUpdate={this.updateAPIData} episodeNum={this.buildEpisodeNum}/>
                     <Shows shows={this.state.shows} buildEpisodeNum={this.buildEpisodeNum}/>
-                    <Calendar calendar={this.state.shows.calendar}/>
+                    <ContentContainer>
+                        <Calendar calendar={this.state.shows.calendar}/>
+                        <Catalog catalog={this.state.shows.catalog}/>
+                    </ContentContainer>
                 </ThemeProvider>
             </div>
         );
