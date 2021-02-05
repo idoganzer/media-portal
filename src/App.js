@@ -1,6 +1,8 @@
 import React, {Component} from "react";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import styled, { ThemeProvider } from 'styled-components';
 import Shows from "./components/Shows";
+import Movies from "./components/pages/Movies"
 import TopBar from "./components/TopBar";
 import Calendar from "./components/Calendar";
 import Catalog from "./components/Catalog";
@@ -46,6 +48,10 @@ class App extends Component{
             'catalog': {
                 'base': process.env.REACT_APP_SONARR_API_URL + '/series?',
                 'key': 'apikey=' + process.env.REACT_APP_SONARR_API_KEY
+            },
+            'movieCatalog': {
+                'base': process.env.REACT_APP_RADARR_API_URL + '/movie?',
+                'key': 'apikey=' + process.env.REACT_APP_RADARR_API_KEY
             }
         }
         // Main state object
@@ -56,7 +62,7 @@ class App extends Component{
                 catalog: []
             },
             movies: {
-                history: []
+                catalog: []
             }
 
         };
@@ -87,9 +93,10 @@ class App extends Component{
         let response = await Promise.all([
             fetch(this.createRequestString(this.apiObj.calendar, 7)),
             fetch(this.createRequestString(this.apiObj.history, 30)),
-            fetch(this.createRequestString(this.apiObj.catalog, null))
+            fetch(this.createRequestString(this.apiObj.catalog, null)),
+            fetch(this.createRequestString(this.apiObj.movieCatalog, null))
         ]);
-        return [await response[0].json(), await response[1].json(), await response[2].json()]
+        return await Promise.all(response.map(res => res.json()))
     }
     /**
      * Get request to check if the download queue has been updated
@@ -146,6 +153,15 @@ class App extends Component{
 
                     show.URL = process.env.REACT_APP_SONARR_BASE_URL + '/sonarr/series/' + show.titleSlug;
                     return show
+                })
+            },
+            movies: {
+                catalog : res[3].map(movie => {
+                    movie.images = this.filterPosters(movie.images).indexOf('static') === -1
+                        ? process.env.REACT_APP_RADARR_BASE_URL + this.filterPosters(movie.images)
+                        : this.filterPosters(movie.images);
+                    movie.URL = process.env.REACT_APP_RADARR_BASE_URL + '/radarr/movie/' + movie.titleSlug
+                    return movie
                 })
             }
         }
@@ -222,16 +238,25 @@ class App extends Component{
     }
     render() {
         return (
-            <div className="App">
-                <ThemeProvider theme={theme}>
-                    <TopBar queue={this.getQueueData} doUpdate={this.updateAPIData} episodeNum={this.buildEpisodeNum}/>
-                    <Shows shows={this.state.shows} buildEpisodeNum={this.buildEpisodeNum}/>
-                    <ContentContainer>
-                        <Calendar calendar={this.state.shows.calendar}/>
-                        <Catalog catalog={this.state.shows.catalog}/>
-                    </ContentContainer>
-                </ThemeProvider>
-            </div>
+            <Router>
+                <div className='App'>
+                    <ThemeProvider theme={theme}>
+                        <TopBar queue={this.getQueueData} doUpdate={this.updateAPIData} episodeNum={this.buildEpisodeNum}/>
+                        <Switch>
+                            <Route exact path='/' render={props => (
+                                <React.Fragment>
+                                    <Shows shows={this.state.shows} buildEpisodeNum={this.buildEpisodeNum}/>
+                                    <ContentContainer>
+                                        <Calendar calendar={this.state.shows.calendar}/>
+                                        <Catalog catalog={this.state.shows.catalog}/>
+                                    </ContentContainer>
+                                </React.Fragment>
+                            )}/>
+                            <Route path='/movies' render={(props => <Movies {...props} catalog={this.state.movies.catalog}/>)}/>
+                        </Switch>
+                    </ThemeProvider>
+                </div>
+            </Router>
         );
     };
 }

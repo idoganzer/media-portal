@@ -1,4 +1,5 @@
 import React, {Component} from "react";
+import {NavLink} from "react-router-dom";
 import styled from "styled-components";
 import DownloadQueue from "./DownloadQueue";
 import configData from "../config.json"
@@ -12,13 +13,19 @@ const TopBarContainer = styled.div`
     display: flex;
     position: relative;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     background: ${props => props.theme.fgColor};
     margin-bottom: 5px;
     h1 {
-      flex-grow: 2;
       font-weight: bold;
-      padding-left: 12px;
+      padding:0 12px;
+    }
+    span {
+      flex-grow: 2;
+      color: ${props => props.theme.mainBorder};
+      a.active {
+        font-weight: bold;
+      }
     }
     .downloadIcon, .menuIcon {
       height: 20px;
@@ -114,6 +121,11 @@ class TopBar extends Component{
         return (
             <TopBarContainer>
                 <h1>Media Portal</h1>
+                <span>
+                    <NavLink exact to='/' activeClassName='active'>Tv</NavLink>
+                    <span> \ </span>
+                    <NavLink to='/movies' activeClassName='active'>Movies</NavLink>
+                </span>
                 <DownloadIcon className={this.state.isDownloading ? 'downloadIcon' : 'downloadIcon hidden'}/>
                 <MenuIcon className={'menuIcon'} onClick={this.togglePanel}/>
                 <NavigationMenu className={this.state.isExtended ? 'isExtended': null} onClick={this.togglePanel}>
