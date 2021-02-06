@@ -6,6 +6,7 @@ import Movies from "./components/pages/Movies"
 import TopBar from "./components/TopBar";
 import Calendar from "./components/Calendar";
 import Catalog from "./components/Catalog";
+import Loading from  "./components/Loading"
 import placeholderImg from './images/poster-placeholder.jpg'
 
 // General shared Css values
@@ -63,8 +64,8 @@ class App extends Component{
             },
             movies: {
                 catalog: []
-            }
-
+            },
+            isLoading: true
         };
     }
 
@@ -163,7 +164,8 @@ class App extends Component{
                     movie.URL = process.env.REACT_APP_RADARR_BASE_URL + '/radarr/movie/' + movie.titleSlug
                     return movie
                 })
-            }
+            },
+            isLoading: false
         }
     }
     /**
@@ -242,6 +244,7 @@ class App extends Component{
                 <div className='App'>
                     <ThemeProvider theme={theme}>
                         <TopBar queue={this.getQueueData} doUpdate={this.updateAPIData} episodeNum={this.buildEpisodeNum}/>
+                        {this.state.isLoading ? <Loading/> : null}
                         <Switch>
                             <Route exact path='/' render={props => (
                                 <React.Fragment>
