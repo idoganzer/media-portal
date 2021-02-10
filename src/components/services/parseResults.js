@@ -40,7 +40,7 @@ const parserDispatch = {
             }
         })
     }),
-    showQueue: downloads => downloads,
+    showQueue: downloads => ({showQueue : downloads}),
     showCatalog: shows => ({
         showCatalog : shows.map(show => {
             show.images = filterPosters(show.images).indexOf('static') === -1

@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import styled, { ThemeProvider } from 'styled-components';
-import Shows from "./components/Shows";
-import Movies from "./components/pages/Movies"
-import TopBar from "./components/TopBar";
-import Calendar from "./components/Calendar";
-import Catalog from "./components/Catalog";
-import Loading from  "./components/Loading"
+// import Shows from "./components/Shows";
+// import Movies from "./components/pages/Movies"
+// import TopBar from "./components/TopBar";
+// import Calendar from "./components/Calendar";
+// import Catalog from "./components/Catalog";
+// import Loading from  "./components/Loading";
 import { getDataByType, getDataByAPI, getData } from "./components/services/communication";
 import parseResults from "./components/services/parseResults";
 
@@ -38,17 +38,38 @@ const App = () => {
           [showCatalog, setShowCatalog]     = useState([]),
           [movieCatalog, setMovieCatalog]   = useState([]);
 
+    const stateDispatch = {
+        showCalendar: shows => setShowCalendar(shows),
+        showHistory: shows => setShowHistory(shows),
+        showQueue: downloads => setShowQueue(downloads),
+        showCatalog: shows => setShowCatalog(shows),
+        movieCatalog: movies => setMovieCatalog(movies)
+    }
     useEffect(() => {
-        // getData()
-        //     .then(res => parseResults(res));
+        getData()
+            .then(data => {
+                parseResults(data).map(res => {
+                    const key = Object.keys(res)[0];
+                    stateDispatch[key](res[key])
+                })
+            });
         // getDataByType('showHistory', 30)
         //     .then(res => parseResults([{'showHistory' : res}]))
-        getDataByAPI('movie')
-            .then(res => parseResults(res))
-            .then(res => console.log(res))
+        //     .then(res => console.log(res))
+        // getDataByAPI('movie')
+        //     .then(res => parseResults(res))
+        //     .then(res => console.log(res))
     }, [])
 
-    return (<h1>hello</h1>)
+    return (
+        <Router>
+            <div className={'App'}>
+                <ThemeProvider theme={theme}>
+
+                </ThemeProvider>
+            </div>
+        </Router>
+    )
 }
 
 export default App;
