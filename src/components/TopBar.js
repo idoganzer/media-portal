@@ -2,7 +2,7 @@ import React, {Component} from "react";
 import {NavLink} from "react-router-dom";
 import styled from "styled-components";
 import DownloadQueue from "./DownloadQueue";
-import configData from "../config.json"
+import configData from "./configuration/config.json"
 import {ReactComponent as MenuIcon} from "../images/menu.svg";
 import {ReactComponent as DownloadIcon} from "../images/download.svg";
 import placeholderImg from "../images/banner-placeholder.jpg";
