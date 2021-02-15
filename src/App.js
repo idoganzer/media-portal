@@ -4,7 +4,7 @@ import styled, { ThemeProvider } from 'styled-components';
 import Shows from "./components/Shows";
 // import Movies from "./components/pages/Movies"
 import TopBar from "./components/TopBar";
-// import Calendar from "./components/Calendar";
+import Calendar from "./components/Calendar";
 // import Catalog from "./components/Catalog";
 // import Loading from  "./components/Loading";
 import { getDataByType, getDataByAPI, getData } from "./components/services/communication";
@@ -74,7 +74,9 @@ const App = () => {
                     <TopBar queue={showQueue} doUpdateByType={updateByType} doUpdateByApi={updateByApi}/>
                     <React.Fragment>
                         <Shows shows={showHistory}/>
-
+                        <ContentContainer>
+                            <Calendar calendar={showCalendar}/>
+                        </ContentContainer>
                     </React.Fragment>
                 </ThemeProvider>
             </div>

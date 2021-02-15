@@ -45,61 +45,40 @@ const CalendarContainer = styled.div`
     }
   }
 `;
-class Calendar extends Component{
-    constructor() {
-        super();
-        this.state = {
-            weekArray: []
-        }
-    };
-    componentDidMount = () => {
-        this.setState({ weekArray: this.plotWeek() });
-    };
-    makeDateString = date => date.toLocaleString('default', {weekday: 'long', month: 'short', day: '2-digit' });
-    plotWeek = () => {
+const Calendar = ({ calendar }) => {
+    const makeDateString = date => date.toLocaleString('default', {weekday: 'long', month: 'short', day: '2-digit' });
+    const setItemClass = ({date, hasFile}) => hasFile ? 'hasFile' : (new Date(date) < new Date() ? 'missingFile' : null);
+
+    const plotWeek = () => {
         let day = new Date(),
             nextDay = new Date(day),
-            week = [this.makeDateString(day)];
+            week = [makeDateString(day)];
 
         for (let i = 1; i <= 6; i++) {
             nextDay.setDate(day.getDate() + 1)
             day.setDate(nextDay.getDate())
-            week.push(this.makeDateString(nextDay))
+            week.push(makeDateString(nextDay))
         }
         return week
     };
-    setItemClass = ({date, hasFile}) => hasFile ? 'hasFile' : (new Date(date) < new Date() ? 'missingFile' : null);
 
-    buildCal = () => {
-        return (
-            this.state.weekArray.map(day =>
+    return (
+        <CalendarContainer>
+            {plotWeek().map(day =>
                 <ul key={day}>
                     <h1>{day}</h1>
-                    {
-                        this.props.calendar
-                            .filter(dailyShows => this.makeDateString(new Date(dailyShows.date)) === day)
-                            .map(show => {
-                                return (
-                                    <li key={show.id} className={this.setItemClass(show)}>
-                                        <a rel="noopener noreferrer" href={show.URL} target='_blank'><h2>{show.name}</h2></a>
-                                        <p>Episode {show.episodeNumber}</p>
-                                        <span>{new Date(show.date).toLocaleString('en-GB', {hourCycle: 'h24', timeStyle: 'short'})}</span>
-                                    </li>
-                                )
-                            })
-                    }
+                    {calendar.filter(dailyShows => makeDateString(new Date(dailyShows.date)) === day)
+                        .map(show =>
+                            <li key={show.id} className={setItemClass(show)}>
+                                <a rel="noopener noreferrer" href={show.URL} target='_blank'><h2>{show.name}</h2></a>
+                                <p>Episode {show.episodeNumber}</p>
+                                <span>{new Date(show.date).toLocaleString('en-GB', {hourCycle: 'h24', timeStyle: 'short'})}</span>
+                            </li>
+                        )}
                 </ul>
-            )
-        )
-    }
-
-    render() {
-        return (
-            <CalendarContainer>
-                {this.buildCal()}
-            </CalendarContainer>
-        );
-    };
+            )}
+        </CalendarContainer>
+    )
 }
 
 export default Calendar
