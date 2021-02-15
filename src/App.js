@@ -5,7 +5,7 @@ import Shows from "./components/Shows";
 // import Movies from "./components/pages/Movies"
 import TopBar from "./components/TopBar";
 import Calendar from "./components/Calendar";
-// import Catalog from "./components/Catalog";
+import Catalog from "./components/Catalog";
 // import Loading from  "./components/Loading";
 import { getDataByType, getDataByAPI, getData } from "./components/services/communication";
 import parseResults from "./components/services/parseResults";
@@ -76,6 +76,7 @@ const App = () => {
                         <Shows shows={showHistory}/>
                         <ContentContainer>
                             <Calendar calendar={showCalendar}/>
+                            <Catalog catalog={showCatalog}/>
                         </ContentContainer>
                     </React.Fragment>
                 </ThemeProvider>
