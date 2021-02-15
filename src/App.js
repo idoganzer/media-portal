@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import styled, { ThemeProvider } from 'styled-components';
 import Shows from "./components/Shows";
-// import Movies from "./components/pages/Movies"
+import Movies from "./components/pages/Movies";
 import TopBar from "./components/TopBar";
 import Calendar from "./components/Calendar";
 import Catalog from "./components/Catalog";
@@ -46,12 +46,12 @@ const App = () => {
         movieCatalog: movies => setMovieCatalog(movies)
     };
 
-    const updateState = update => {
-        parseResults(update).map(res => {
-            const key = Object.keys(res)[0];
-            stateDispatch[key](res[key])
-        })
-    };
+    const updateState = update => parseResults(update).map(res => {
+        const key = Object.keys(res)[0];
+        stateDispatch[key](res[key])
+        return key
+    });
+
 
     const updateByType = (type, range) => {
         getDataByType(type, range).then(data => updateState(data))
@@ -72,13 +72,18 @@ const App = () => {
             <div className={'App'}>
                 <ThemeProvider theme={theme}>
                     <TopBar queue={showQueue} doUpdateByType={updateByType} doUpdateByApi={updateByApi}/>
-                    <React.Fragment>
-                        <Shows shows={showHistory}/>
-                        <ContentContainer>
-                            <Calendar calendar={showCalendar}/>
-                            <Catalog catalog={showCatalog}/>
-                        </ContentContainer>
-                    </React.Fragment>
+                    <Switch>
+                        <Route exact path='/' render={props => (
+                            <React.Fragment>
+                                <Shows shows={showHistory}/>
+                                <ContentContainer>
+                                    <Calendar calendar={showCalendar}/>
+                                    <Catalog catalog={showCatalog}/>
+                                </ContentContainer>
+                            </React.Fragment>
+                        )}/>
+                        <Route path='/movies' render={(props => <Movies {...props} catalog={movieCatalog}/>)}/>
+                    </Switch>
                 </ThemeProvider>
             </div>
         </Router>
