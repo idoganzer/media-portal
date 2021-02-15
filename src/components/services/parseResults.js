@@ -35,6 +35,7 @@ const parserDispatch = {
                 title: show.episode.title,
                 episodeNumber: show.episode.episodeNumber,
                 seasonNumber: show.episode.seasonNumber,
+                showFormatNumber: buildEpisodeNum(show.episode.seasonNumber, show.episode.episodeNumber),
                 img: filterPosters(show.series.images),
                 URL: process.env.REACT_APP_SONARR_BASE_URL + '/sonarr/series/' + show.series.titleSlug,
                 otherEpisodes: []

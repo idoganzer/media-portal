@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import styled, { ThemeProvider } from 'styled-components';
-// import Shows from "./components/Shows";
+import Shows from "./components/Shows";
 // import Movies from "./components/pages/Movies"
 import TopBar from "./components/TopBar";
 // import Calendar from "./components/Calendar";
@@ -44,34 +44,38 @@ const App = () => {
         showQueue: downloads => setShowQueue(downloads),
         showCatalog: shows => setShowCatalog(shows),
         movieCatalog: movies => setMovieCatalog(movies)
-    }
+    };
 
     const updateState = update => {
         parseResults(update).map(res => {
             const key = Object.keys(res)[0];
             stateDispatch[key](res[key])
         })
-    }
+    };
 
     const updateByType = (type, range) => {
         getDataByType(type, range).then(data => updateState(data))
-    }
+    };
 
     const updateAll = () => {
         getData().then(data => updateState(data))
-    }
+    };
 
     const updateByApi = type => {
         getDataByAPI(type).then(data => updateState(data))
-    }
+    };
 
-    useEffect(updateAll, [])
+    useEffect(updateAll, []);
 
     return (
         <Router>
             <div className={'App'}>
                 <ThemeProvider theme={theme}>
                     <TopBar queue={showQueue} doUpdateByType={updateByType} doUpdateByApi={updateByApi}/>
+                    <React.Fragment>
+                        <Shows shows={showHistory}/>
+
+                    </React.Fragment>
                 </ThemeProvider>
             </div>
         </Router>
