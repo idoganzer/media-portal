@@ -1,4 +1,5 @@
-import placeholderImg from '../../images/poster-placeholder.jpg'
+import posterPlaceholderImg from '../../images/poster-placeholder.jpg'
+import bannerPlaceholderImg from "../../images/banner-placeholder.jpg";
 
 /**
  * parserDispatch Takes a keyed object and dispatches it to the correlation func
@@ -40,7 +41,17 @@ const parserDispatch = {
             }
         })
     }),
-    showQueue: downloads => ({showQueue : downloads}),
+    showQueue: downloads => ({
+        showQueue : downloads.map(show => {
+            return {
+                id: show.id,
+                title: show.series.title,
+                episode: buildEpisodeNum(show.episode.seasonNumber, show.episode.episodeNumber),
+                percentComplete: calcPercent(show.size, show.sizeleft),
+                banner: filterBanner(show.series.images)
+            }
+        })
+    }),
     showCatalog: shows => ({
         showCatalog : shows.map(show => {
             show.images = filterPosters(show.images).indexOf('static') === -1
@@ -86,15 +97,44 @@ const sortDuplicates = data => {
     return data
 }
 /**
- * filterPosters filters out images that are not of the type poster and replaces
+ * Filters out images that are not of the type poster and replaces
  * missing images with a placeholder image
  * @param imageObj is an array of object of different types
  * @returns {string} a URL of the wanted image location
  */
 const filterPosters = imageObj => {
     const posters = imageObj.filter(img => img.coverType === 'poster')[0]?.url;
-    return posters === undefined ? placeholderImg : posters
+    return posters === undefined ? posterPlaceholderImg : posters
 }
+/**
+ * Filters out images that are not of the type banner and replaces
+ * missing images with a placeholder image
+ * @param imageObj is an array of object of different types
+ * @returns {string} a URL of the wanted image location
+ */
+const filterBanner = imageObj => {
+    const banners = imageObj.filter(img => img.coverType === 'banner')[0]?.url;
+    return banners === undefined ? bannerPlaceholderImg : banners
+};
+/**
+ * Formats episode and season numbers into S00E00
+ * @param season season number
+ * @param episode episode number
+ * @return {string}
+ */
+const buildEpisodeNum = (season, episode) => {
+    return 'S' + (season.toString().length > 1 ? season : '0' + season) +
+        'E' + (episode.toString().length > 1 ? episode : '0' + episode)
+}
+
+/**
+ * Calculates download percentage
+ * @param total the total file size
+ * @param amount the amount that has been downloaded
+ * @return {string}
+ */
+const calcPercent = (total, amount) => Math.round(((total - amount) / total) * 100) + "%";
+
 /**
  * parseResults takes an object, deconstructs its keys and send it to the parserDispatch
  * @param data

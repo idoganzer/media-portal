@@ -1,4 +1,4 @@
-import React, {Component} from "react";
+import React from "react";
 import styled from "styled-components";
 
 const QueueContainer = styled.div`
@@ -34,23 +34,17 @@ const QueueContainer = styled.div`
     }
 `;
 
-class DownloadQueue extends Component{
-    componentWillUnmount() {
-        this.props.doUpdate();
-    };
-
-    render() {
-        return (
-            <QueueContainer sizeleft={this.props.queue.percentComplete} >
-                <img src={this.props.queue.banner} alt=""/>
-                <p>{this.props.queue.title}</p>
-                <p>{this.props.queue.episode}</p>
-                <div className={'progressBar'}>
-                    <div className="progress">{this.props.queue.percentComplete}</div>
-                </div>
-            </QueueContainer>
-        );
-    };
+const DownloadQueue = ({queue}) => {
+    return (
+        <QueueContainer sizeleft={queue.percentComplete} >
+            <img src={queue.banner} alt=""/>
+            <p>{queue.title}</p>
+            <p>{queue.episode}</p>
+            <div className={'progressBar'}>
+                <div className="progress">{queue.percentComplete}</div>
+            </div>
+        </QueueContainer>
+    );
 }
 
 export default DownloadQueue;

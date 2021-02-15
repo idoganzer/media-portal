@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import styled, { ThemeProvider } from 'styled-components';
 // import Shows from "./components/Shows";
 // import Movies from "./components/pages/Movies"
-// import TopBar from "./components/TopBar";
+import TopBar from "./components/TopBar";
 // import Calendar from "./components/Calendar";
 // import Catalog from "./components/Catalog";
 // import Loading from  "./components/Loading";
@@ -45,27 +45,33 @@ const App = () => {
         showCatalog: shows => setShowCatalog(shows),
         movieCatalog: movies => setMovieCatalog(movies)
     }
-    useEffect(() => {
-        getData()
-            .then(data => {
-                parseResults(data).map(res => {
-                    const key = Object.keys(res)[0];
-                    stateDispatch[key](res[key])
-                })
-            });
-        // getDataByType('showHistory', 30)
-        //     .then(res => parseResults([{'showHistory' : res}]))
-        //     .then(res => console.log(res))
-        // getDataByAPI('movie')
-        //     .then(res => parseResults(res))
-        //     .then(res => console.log(res))
-    }, [])
+
+    const updateState = update => {
+        parseResults(update).map(res => {
+            const key = Object.keys(res)[0];
+            stateDispatch[key](res[key])
+        })
+    }
+
+    const updateByType = (type, range) => {
+        getDataByType(type, range).then(data => updateState(data))
+    }
+
+    const updateAll = () => {
+        getData().then(data => updateState(data))
+    }
+
+    const updateByApi = type => {
+        getDataByAPI(type).then(data => updateState(data))
+    }
+
+    useEffect(updateAll, [])
 
     return (
         <Router>
             <div className={'App'}>
                 <ThemeProvider theme={theme}>
-
+                    <TopBar queue={showQueue} doUpdateByType={updateByType} doUpdateByApi={updateByApi}/>
                 </ThemeProvider>
             </div>
         </Router>

@@ -43,7 +43,7 @@ const getDate = range => {
  */
 export const getDataByType = async (type, range) => {
     const response = await fetch(pageDispatch[type](apiConf, range));
-    return await response.json()
+    return [{[type] : await response.json()}]
 }
 
 /**
