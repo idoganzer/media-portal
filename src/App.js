@@ -52,17 +52,27 @@ const App = () => {
         return key
     });
 
+    const handleError = () => {
+        Promise.any([getDataByAPI('show'), getDataByAPI('movie')])
+            .then(data => updateState(data))
+            .catch(err => console.log('No Api avalable'))
+
+    };
 
     const updateByType = (type, range) => {
-        getDataByType(type, range).then(data => updateState(data))
+        getDataByType(type, range)
+            .then(data => updateState(data));
     };
 
     const updateAll = () => {
-        getData().then(data => updateState(data))
+        getData()
+            .then(data => updateState(data))
+            .catch(error => handleError());
     };
 
     const updateByApi = type => {
-        getDataByAPI(type).then(data => updateState(data))
+        getDataByAPI(type)
+            .then(data => updateState(data));
     };
 
     useEffect(updateAll, []);
