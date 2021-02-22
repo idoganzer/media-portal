@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {useEffect} from 'react';
 import styled from 'styled-components';
 import Card from "./Card";
 import leftArrow from '../images/left.svg'
@@ -54,57 +54,41 @@ const List = styled.ul`
   }
 `;
 
-class Shows extends Component{
-    constructor() {
-        super();
-        this.showListParent = React.createRef();
-    };
-    /**
-     *  Lifecycle hook
-     *  When the component is loaded set the scroll position
-     */
-    componentDidMount = () => this.showListParent.current.scrollLeft = 0;
 
-    /**
-     * Animates side scrolling
-     * @param direction
-     */
-    animateScroll = direction => {
+const Shows = ({shows}) => {
+    const showListParent = React.createRef();
+
+    const handleClick = event => event.target.className === 'leftBtn' ? animateScroll('left') : animateScroll('right');
+
+    const animateScroll = direction => {
         const scrollLimit = 820,  // Max Distance of scroll
-              scrollFactor = 30;  // Distance of scroll tick
+            scrollFactor = 30;  // Distance of scroll tick
 
         let counter = 0;
 
         const scrollTimer = setInterval(() => {
-            this.showListParent.current.scrollLeft = this.showListParent.current.scrollLeft + (direction === 'left' ? -scrollFactor : +scrollFactor);
+            showListParent.current.scrollLeft = showListParent.current.scrollLeft + (direction === 'left' ? -scrollFactor : +scrollFactor);
             counter = counter + scrollFactor;
-            if (counter >= scrollLimit || this.showListParent.current.scrollLeft === 0) clearInterval(scrollTimer)
+            if (counter >= scrollLimit || showListParent.current.scrollLeft === 0) clearInterval(scrollTimer)
         }, 10)
     };
 
-    /**
-     * Gets a click event from the scroll buttons and returns the scroll direction
-     * @param event
-     */
-    handleClick = (event) => event.target.className === 'leftBtn' ? this.animateScroll('left') : this.animateScroll('right');
+    const resetScroll = () => {showListParent.current.scrollLeft = 0};
 
-    render() {
-        return (
-            <ShowContainer className={this.props.shows.history.length === 0 ? 'hidden' : ' '}>
-                <h1>Downloaded</h1>
-                <List ref={this.showListParent}>
-                    {this.props.shows.history
-                        .map(show =>
-                            <Card key={show.id || show[0].id} show={show} buildEpisodeNum={this.props.buildEpisodeNum}/>)}
-                </List>
-                <div className={'scrollBtn'}>
-                    <img className='leftBtn' src={leftArrow} alt="" onClick={this.handleClick}/>
-                    <img className='rightBtn' src={rightArrow} alt="" onClick={this.handleClick}/>
-                </div>
-            </ShowContainer>
-        );
-    };
+    useEffect(resetScroll, []);
+
+    return (
+        <ShowContainer className={shows.length === 0 ? 'hidden' : ' '}>
+            <h1>Downloaded</h1>
+            <List ref={showListParent}>
+                {shows.map(show => <Card key={show.id || show[0].id} show={show}/>)}
+            </List>
+            <div className={'scrollBtn'}>
+                <img className='leftBtn' src={leftArrow} alt="" onClick={handleClick}/>
+                <img className='rightBtn' src={rightArrow} alt="" onClick={handleClick}/>
+            </div>
+        </ShowContainer>
+    )
 }
-
 
 export default Shows;

@@ -10,10 +10,6 @@ const MovieContainer = styled.div`
     gap: 10px;
   }
 `
+const Movies = ({ catalog}) => <MovieContainer> <Catalog catalog={catalog}/> </MovieContainer>
 
-export default function Movies(props) {
-    return (
-        <MovieContainer>
-            <Catalog catalog={props.catalog}/>
-        </MovieContainer>
-)}
+export default Movies

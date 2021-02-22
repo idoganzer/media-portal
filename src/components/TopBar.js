@@ -1,11 +1,11 @@
-import React, {Component} from "react";
+import React, {useState, useEffect, useRef} from "react";
 import {NavLink} from "react-router-dom";
 import styled from "styled-components";
+import { links } from "./configuration/config.json"
 import DownloadQueue from "./DownloadQueue";
-import configData from "../config.json"
 import {ReactComponent as MenuIcon} from "../images/menu.svg";
 import {ReactComponent as DownloadIcon} from "../images/download.svg";
-import placeholderImg from "../images/banner-placeholder.jpg";
+
 
 const TopBarContainer = styled.div`
     height: 35px;
@@ -77,72 +77,66 @@ const NavigationMenu = styled.nav`
       border-left: 10px solid ${props => props.theme.mainBorder};
     }
 `;
-class TopBar extends Component{
-    constructor() {
-        super();
-        this.state = {
-            isExtended: false,
-            isDownloading: false,
-            links: configData.links,
-            queue: []
-        };
+
+/**
+ * Saves the last state of a prop/state after a change to is has happened
+ * @param value the previous state
+ * @return {number} The length of the previous state
+ */
+const usePrevious = (value) => {
+    const ref = useRef();
+    useEffect(() => {
+        ref.current = value.length;
+    });
+    return ref.current;
+}
+
+const TopBar = ({queue, doUpdateByType,doUpdateByApi, loadedState}) => {
+    const [isDownloading, setDownloading]   = useState(false),
+          [isExtended, toggleExtended]      = useState(false),
+          prevUpdate                        = usePrevious(queue);
+
+    const togglePanel = () => toggleExtended(!isExtended);
+    const setUpdateInterval = () => {
+        setInterval(() => {
+            if (loadedState.includes('sonarr')) doUpdateByType('showQueue');
+        }, 10000)
     };
-    componentDidMount = () => {
-        this.updateQueue();
-        this.updateInterval();
-    };
-    togglePanel = () => this.setState({ isExtended: !this.state.isExtended });
-    updateQueue = () => this.props.queue().then(async res => this.parseResults(await res.json())).then(data => this.setState({queue: data}));
-    parseResults = res => {
-        if (!res.length) {
-            this.setState({isDownloading: false})
-            return res
-        }
-        this.setState({isDownloading: true})
-        return res.map(show => {
-            return {
-                id: show.id,
-                title: show.series.title,
-                episode: this.props.episodeNum(show.episode.seasonNumber, show.episode.episodeNumber),
-                percentComplete: this.calcPercent(show.size, show.sizeleft),
-                banner: this.filterBanner(show.series.images)
-            }
-        })
-    };
-    filterBanner = imageObj => {
-        const banners = imageObj.filter(img => img.coverType === 'banner')[0]?.url;
-        return banners === undefined ? placeholderImg : banners
-    };
-    calcPercent = (total, amount) => Math.round(((total - amount) / total) * 100) + "%";
-    updateInterval = () => {
-        let interval = setInterval(() => {this.updateQueue()}, 10000)
-    };
-    render() {
-        return (
-            <TopBarContainer>
-                <h1>Media Portal</h1>
-                <span>
-                    <NavLink exact to='/' activeClassName='active'>Tv</NavLink>
-                    <span> \ </span>
-                    <NavLink to='/movies' activeClassName='active'>Movies</NavLink>
-                </span>
-                <DownloadIcon className={this.state.isDownloading ? 'downloadIcon' : 'downloadIcon hidden'}/>
-                <MenuIcon className={'menuIcon'} onClick={this.togglePanel}/>
-                <NavigationMenu className={this.state.isExtended ? 'isExtended': null} onClick={this.togglePanel}>
-                    <ul>
-                        {this.state.links
-                            .map(link =>
-                                <li key={link.id}>
-                                    <a rel="noopener noreferrer" href={link.url} target='_blank'>{link.name}</a>
-                                </li>
-                            )
-                        }
-                    </ul>
-                    {this.state.queue.map(show => <DownloadQueue doUpdate={this.props.doUpdate} key={show.id} queue={show}/>)}
-                </NavigationMenu>
-            </TopBarContainer>
-        );
-    };
+
+    useEffect(() => {
+        if (prevUpdate > queue) doUpdateByApi('show')
+        if (queue.length > 0) setDownloading(true)
+            else setDownloading(false)
+
+    }, [queue, prevUpdate, doUpdateByApi])
+
+
+    useEffect(setUpdateInterval, [])
+
+    return (
+        <TopBarContainer>
+            <h1>Media Portal</h1>
+            <span>
+                <NavLink exact to='/' activeClassName='active'>Tv</NavLink>
+                <span> \ </span>
+                <NavLink to='/movies' activeClassName='active'>Movies</NavLink>
+            </span>
+            <DownloadIcon className={isDownloading ? 'downloadIcon' : 'downloadIcon hidden'}/>
+            <MenuIcon className={'menuIcon'} onClick={togglePanel}/>
+            <NavigationMenu className={isExtended ? 'isExtended': null} onClick={togglePanel}>
+                <ul>
+                    {
+                        links.map(link =>
+                            <li key={link.id}>
+                                <a rel="noopener noreferrer" href={link.url} target='_blank'>{link.name}</a>
+                            </li>
+                        )
+                    }
+                </ul>
+                {queue.map(show => <DownloadQueue key={show.id} queue={show} doUpdate={doUpdateByApi}/>)}
+            </NavigationMenu>
+        </TopBarContainer>
+    )
 }
 
 export default TopBar;

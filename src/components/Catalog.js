@@ -1,4 +1,4 @@
-import React, {Component} from "react";
+import React from "react";
 import { withRouter } from "react-router-dom";
 import styled from "styled-components";
 
@@ -42,43 +42,28 @@ const CatalogContainer = styled.div`
   }
 `;
 
-class Catalog extends Component{
-    constructor() {
-        super();
-        this.state = {
-            location : ''
-        }
-    }
+const Catalog = ({ catalog, location }) => {
 
-    componentDidMount = () => this.setState({location : this.props.location.pathname})
-
-    render() {
-        return (
-            <CatalogContainer>
-                <div className="topBar">
-                    <h1>{!this.state.location.includes('/movies') ? 'Catalog' : 'Movies'}</h1>
-                </div>
-                <div className="catalog">
-                    {
-                        this.props.catalog
-                            .map(show =>
-                                <div key={show.id}>
-                                    <a rel="noopener noreferrer" href={show.URL} target='_blank'>
-                                        <img src={show.images}/>
-                                    </a>
-
-                                    {
-                                        this.state.location.includes('/movies')
-                                            ? <span className={show.downloaded ? 'downloaded' : null}></span>
-                                            : null
-                                    }
-                                </div>).reverse()
-
-                    }
-                </div>
-            </CatalogContainer>
-        );
-    };
+    return (
+        <CatalogContainer>
+            <div className="topBar">
+                <h1>{!location.pathname.includes('/movies') ? 'Catalog' : 'Movies'}</h1>
+            </div>
+            <div className="catalog">
+                {catalog.map(show =>
+                    <div key={show.id}>
+                        <a rel="noopener noreferrer" href={show.URL} target='_blank'>
+                            <img src={show.images} alt={show.title}/>
+                        </a>
+                        {location.pathname.includes('/movies')
+                            ? <span className={show.downloaded ? 'downloaded' : null}></span>
+                            : null
+                        }
+                    </div>).reverse()
+                }
+            </div>
+        </CatalogContainer>
+    )
 }
 
 export default withRouter(Catalog);

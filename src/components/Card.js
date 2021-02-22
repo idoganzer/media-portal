@@ -1,6 +1,5 @@
-import React, {Component} from 'react';
+import React, {useState} from 'react';
 import styled from 'styled-components';
-
 
 const ListItem = styled.li`
   width: 272px;
@@ -79,63 +78,57 @@ const ShowInfoContainer = styled.div`
   }
 `;
 
-class Card extends Component{
-    constructor() {
-        super();
-        this.state = {
-            isExtended: false
-        };
-    };
-    togglePanel = () => this.setState({ isExtended: !this.state.isExtended });
-    buildCard = show => {
-        show.otherEpisodes = show.otherEpisodes.filter(
-            (other, i, array) => show.episodeId !== other.episodeId
-                && array.findIndex(target => (target.episodeId === other.episodeId)) === i
-        );
-        if (show.otherEpisodes.length > 0) {
-            return (
-                <React.Fragment>
-                    <div className='cardFront'>
-                        <div>+{show.otherEpisodes.length}</div>
-                        <img src={show.img} alt=""/>
-                    </div>
-                    <ShowInfoContainer className={'cardBack'}>
-                        <h1><a rel="noopener noreferrer" href={show.URL} target='_blank'>{show.name}</a></h1>
-                        <div>{show.title}</div>
-                        {show.otherEpisodes
-                            .map(other =>
-                                <div key={other.episodeId}>
-                                    {other.title} - {this.props.buildEpisodeNum(other.seasonNumber, other.episodeNumber)}
-                                </div>
-                            )}
-                        <span>{this.props.buildEpisodeNum(show.seasonNumber, show.episodeNumber)}</span>
-                    </ShowInfoContainer>
-                </React.Fragment>
-            )
-        }
+const buildCard = show => {
+    show.otherEpisodes = show.otherEpisodes.filter(
+        (other, i, array) => show.episodeId !== other.episodeId
+            && array.findIndex(target => (target.episodeId === other.episodeId)) === i
+    );
+    if (show.otherEpisodes.length > 0) {
         return (
             <React.Fragment>
                 <div className='cardFront'>
+                    <div>+{show.otherEpisodes.length}</div>
                     <img src={show.img} alt=""/>
                 </div>
                 <ShowInfoContainer className={'cardBack'}>
                     <h1><a rel="noopener noreferrer" href={show.URL} target='_blank'>{show.name}</a></h1>
                     <div>{show.title}</div>
-                    <span>{this.props.buildEpisodeNum(show.seasonNumber, show.episodeNumber)}</span>
+                    {show.otherEpisodes
+                        .map(other =>
+                            <div key={other.episodeId}>
+                                {other.title} - {show.showFormatNumber}
+                            </div>
+                        )}
+                    <span>{show.showFormatNumber}</span>
                 </ShowInfoContainer>
             </React.Fragment>
         )
-    };
+    }
+    return (
+        <React.Fragment>
+            <div className='cardFront'>
+                <img src={show.img} alt=""/>
+            </div>
+            <ShowInfoContainer className={'cardBack'}>
+                <h1><a rel="noopener noreferrer" href={show.URL} target='_blank'>{show.name}</a></h1>
+                <div>{show.title}</div>
+                <span>{show.showFormatNumber}</span>
+            </ShowInfoContainer>
+        </React.Fragment>
+    )
+};
 
-    render() {
-        return (
-            <ListItem className={this.state.isExtended ? 'isExtended': null} onClick={this.togglePanel}>
-                <div className={`cardInner ${this.state.isExtended ? 'isExtended': null}`}>
-                    {this.buildCard(this.props.show)}
-                </div>
-            </ListItem>
-        );
-    };
+const Card = ({show}) => {
+    const [isExtended, setExtended]   = useState(false);
+
+    const togglePanel = () => setExtended(!isExtended);
+    return (
+        <ListItem className={isExtended ? 'isExtended': null} onClick={togglePanel}>
+            <div className={`cardInner ${isExtended ? 'isExtended': null}`}>
+                {buildCard(show)}
+            </div>
+        </ListItem>
+    )
 }
 
 export default Card;
