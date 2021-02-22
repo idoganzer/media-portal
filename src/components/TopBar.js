@@ -91,13 +91,17 @@ const usePrevious = (value) => {
     return ref.current;
 }
 
-const TopBar = ({queue, doUpdateByType,doUpdateByApi}) => {
+const TopBar = ({queue, doUpdateByType,doUpdateByApi, loadedState}) => {
     const [isDownloading, setDownloading]   = useState(false),
           [isExtended, toggleExtended]      = useState(false),
           prevUpdate                        = usePrevious(queue);
 
     const togglePanel = () => toggleExtended(!isExtended);
-    const setUpdateInterval = () => {setInterval(() => {doUpdateByType('showQueue')}, 10000)};
+    const setUpdateInterval = () => {
+        setInterval(() => {
+            if (loadedState.includes('sonarr')) doUpdateByType('showQueue');
+        }, 10000)
+    };
 
     useEffect(() => {
         if (prevUpdate > queue) doUpdateByApi('show')

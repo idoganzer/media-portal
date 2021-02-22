@@ -104,8 +104,12 @@ const sortDuplicates = data => {
  * @returns {string} a URL of the wanted image location
  */
 const filterPosters = imageObj => {
-    const posters = imageObj.filter(img => img.coverType === 'poster')[0]?.url;
-    return posters === undefined ? posterPlaceholderImg : posters
+    if (typeof imageObj !== 'string') {
+        const posters = imageObj.filter(img => img.coverType === 'poster')[0]?.url;
+        return posters === undefined ? posterPlaceholderImg : posters
+    } else {
+        return imageObj
+    }
 }
 /**
  * Filters out images that are not of the type banner and replaces

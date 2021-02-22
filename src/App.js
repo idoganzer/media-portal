@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import styled, { ThemeProvider } from 'styled-components';
 import Shows from "./components/Shows";
@@ -6,7 +6,7 @@ import Movies from "./components/pages/Movies";
 import TopBar from "./components/TopBar";
 import Calendar from "./components/Calendar";
 import Catalog from "./components/Catalog";
-// import Loading from  "./components/Loading";
+import Loading from  "./components/Loading";
 import { getDataByType, getDataByAPI, getData } from "./components/services/communication";
 import parseResults from "./components/services/parseResults";
 
@@ -36,7 +36,8 @@ const App = () => {
           [showHistory, setShowHistory]     = useState([]),
           [showQueue, setShowQueue]         = useState([]),
           [showCatalog, setShowCatalog]     = useState([]),
-          [movieCatalog, setMovieCatalog]   = useState([]);
+          [movieCatalog, setMovieCatalog]   = useState([]),
+          [loadedState, setLoadedState]    = useState([]);
 
     const stateDispatch = {
         showCalendar: shows => setShowCalendar(shows),
@@ -53,20 +54,31 @@ const App = () => {
     });
 
     const handleError = () => {
-        Promise.any([getDataByAPI('show'), getDataByAPI('movie')])
-            .then(data => updateState(data))
-            .catch(err => console.log('No Api avalable'))
-
+        Promise.allSettled([getDataByAPI('show'), getDataByAPI('movie')])
+            .then(data => {
+                data.forEach((res, i) => {
+                    if (res.status !== 'rejected') {
+                        updateState(res.value);
+                        i === 0
+                            ? setLoadedState([...loadedState, 'sonarr'])
+                            : setLoadedState([...loadedState, 'radarr']);
+                    }
+                })
+            })
     };
 
     const updateByType = (type, range) => {
         getDataByType(type, range)
-            .then(data => updateState(data));
+            .then(data => updateState(data))
+            .catch(error => console.error(error));
     };
 
     const updateAll = () => {
         getData()
-            .then(data => updateState(data))
+            .then(data => {
+                setLoadedState(['radarr', 'sonarr']);
+                updateState(data);
+            })
             .catch(error => handleError());
     };
 
@@ -81,18 +93,33 @@ const App = () => {
         <Router>
             <div className={'App'}>
                 <ThemeProvider theme={theme}>
-                    <TopBar queue={showQueue} doUpdateByType={updateByType} doUpdateByApi={updateByApi}/>
+                    <TopBar
+                        queue={showQueue}
+                        doUpdateByType={updateByType}
+                        doUpdateByApi={updateByApi}
+                        loadedState={loadedState}
+                    />
                     <Switch>
                         <Route exact path='/' render={props => (
-                            <React.Fragment>
+                            <>
+                                {loadedState.includes('sonarr')
+                                    ? null
+                                    : <Loading loadedState={loadedState} doUpdateAll={updateAll}/>}
                                 <Shows shows={showHistory}/>
                                 <ContentContainer>
                                     <Calendar calendar={showCalendar}/>
                                     <Catalog catalog={showCatalog}/>
                                 </ContentContainer>
-                            </React.Fragment>
+                            </>
                         )}/>
-                        <Route path='/movies' render={(props => <Movies {...props} catalog={movieCatalog}/>)}/>
+                        <Route path='/movies' render={props => (
+                            <>
+                                {loadedState.includes('radarr')
+                                    ? null
+                                    : <Loading loadedState={loadedState} doUpdateAll={updateAll}/>}
+                                <Movies {...props} catalog={movieCatalog}/>
+                            </>
+                            )}/>
                     </Switch>
                 </ThemeProvider>
             </div>
