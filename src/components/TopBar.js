@@ -97,21 +97,20 @@ const TopBar = ({queue, doUpdateByType,doUpdateByApi, loadedState}) => {
           prevUpdate                        = usePrevious(queue);
 
     const togglePanel = () => toggleExtended(!isExtended);
-    const setUpdateInterval = () => {
-        setInterval(() => {
-            if (loadedState.includes('sonarr')) doUpdateByType('showQueue');
-        }, 10000)
-    };
 
     useEffect(() => {
-        if (prevUpdate > queue) doUpdateByApi('show')
-        if (queue.length > 0) setDownloading(true)
-            else setDownloading(false)
+        if (prevUpdate !== queue.length && prevUpdate !== undefined) doUpdateByApi('show');
+        if (queue.length > 0) setDownloading(true);
+            else setDownloading(false);
+    }, [queue, prevUpdate, doUpdateByApi]);
 
-    }, [queue, prevUpdate, doUpdateByApi])
+    useEffect(() => {
+        const interval = setInterval(() => {
+            if (loadedState.includes('sonarr')) doUpdateByType('showQueue');
+        }, 10000);
 
-
-    useEffect(setUpdateInterval, [])
+        return () => clearInterval(interval)
+    }, [loadedState, doUpdateByType]);
 
     return (
         <TopBarContainer>
