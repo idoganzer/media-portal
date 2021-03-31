@@ -52,6 +52,11 @@ const ShowInfoContainer = styled.div`
   display: flex;
   flex-direction: column;
   
+  .leftovers {
+    margin-top: 5px;
+    font-size: 0.8em;
+  }
+  
   h1, div, span {
     padding: 0 10px;
     box-sizing: border-box;
@@ -84,6 +89,9 @@ const buildCard = show => {
             && array.findIndex(target => (target.episodeId === other.episodeId)) === i
     );
     if (show.otherEpisodes.length > 0) {
+        const shortList = show.otherEpisodes.slice(0,7),
+              leftovers = show.otherEpisodes.slice(7);
+
         return (
             <React.Fragment>
                 <div className='cardFront'>
@@ -93,12 +101,19 @@ const buildCard = show => {
                 <ShowInfoContainer className={'cardBack'}>
                     <h1><a rel="noopener noreferrer" href={show.URL} target='_blank'>{show.name}</a></h1>
                     <div>{show.title}</div>
-                    {show.otherEpisodes
-                        .map(other =>
-                            <div key={other.episodeId}>
-                                {other.title} - {show.showFormatNumber}
-                            </div>
-                        )}
+                    {
+                        shortList
+                            .map(other =>
+                                <div key={other.episodeId}>
+                                    {other.title} - {other.showFormatNumber}
+                                </div>
+                            )
+                    }
+                    {
+                        show.otherEpisodes.length >= shortList.length
+                            ? <div className={'leftovers'}> {leftovers.length} More episodes </div>
+                            : null
+                    }
                     <span>{show.showFormatNumber}</span>
                 </ShowInfoContainer>
             </React.Fragment>
