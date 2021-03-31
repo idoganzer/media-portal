@@ -110,7 +110,7 @@ const buildCard = show => {
                             )
                     }
                     {
-                        show.otherEpisodes.length >= shortList.length
+                        show.otherEpisodes.length > shortList.length
                             ? <div className={'leftovers'}> {leftovers.length} More episodes </div>
                             : null
                     }
