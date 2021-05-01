@@ -7,12 +7,13 @@ import { apiConf } from '../configuration/api'
  */
 const pageDispatch = {
     showCalendar: ({ sonarr }, range) =>
-        createBaseString(sonarr, '/calendar?') + '&start=' + getDate(range)[0] + '&end=' + getDate(range)[1],
+        createBaseString(sonarr, '/calendar') + '&start=' + getDate(range)[0] + '&end=' + getDate(range)[1],
     showHistory: ({ sonarr }, range) =>
-        createBaseString(sonarr, '/history?') + '&pageSize=' + (range || 30),
-    showQueue: ({ sonarr }) => createBaseString(sonarr,'/queue?'),
-    showCatalog: ({ sonarr }) => createBaseString(sonarr, '/series?'),
-    movieCatalog: ({ radarr }) => createBaseString(radarr, '/movie?')
+        createBaseString(sonarr, '/history') + '&pageSize=' + (range || 30),
+    showQueue: ({ sonarr }) => createBaseString(sonarr,'/queue'),
+    showCatalog: ({ sonarr }) => createBaseString(sonarr, '/series'),
+    showWanted: ({ sonarr }) => createBaseString(sonarr, '/wanted/missing'),
+    movieCatalog: ({ radarr }) => createBaseString(radarr, '/movie')
 }
 /**
  * Creates a request string for the api get request
@@ -20,7 +21,7 @@ const pageDispatch = {
  * @param path The API path
  * @return {string} A request string
  */
-const createBaseString = (obj, path) => obj.URL + path + obj.key
+const createBaseString = (obj, path) => obj.URL + path + '?' + obj.key
 
 /**
  * Returns two dates separated by the range indicated by the range param

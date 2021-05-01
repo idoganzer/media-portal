@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { useSelector, useDispatch} from "react-redux";
 import styled, { ThemeProvider } from 'styled-components';
 import Shows from "./components/Shows";
 import Movies from "./components/pages/Movies";
@@ -9,7 +10,10 @@ import Catalog from "./components/Catalog";
 import Loading from  "./components/Loading";
 import { getDataByType, getDataByAPI, getData } from "./components/services/communication";
 import parseResults from "./components/services/parseResults";
-
+import getShowCalendar from "./redux/actions/getShowCalendar";
+import getShowHistory from "./redux/actions/getShowHistory";
+import getShowCatalog from "./redux/actions/getShowCatalog";
+import getDownloadQueue from "./redux/actions/getDownloadQueue";
 
 // General shared Css values
 const theme = {
@@ -38,6 +42,8 @@ const App = () => {
           [showCatalog, setShowCatalog]     = useState([]),
           [movieCatalog, setMovieCatalog]   = useState([]),
           [loadedState, setLoadedState]    = useState([]);
+
+    const dispatch = useDispatch();
 
     const stateDispatch = {
         showCalendar: shows => setShowCalendar(shows),
@@ -74,12 +80,16 @@ const App = () => {
     };
 
     const updateAll = () => {
-        getData()
-            .then(data => {
-                setLoadedState(['radarr', 'sonarr']);
-                updateState(data);
-            })
-            .catch(error => handleError());
+        // getData()
+        //     .then(data => {
+        //         setLoadedState(['radarr', 'sonarr']);
+        //         updateState(data);
+        //     })
+        //     .catch(error => handleError());
+        // dispatch(getShowCalendar(7))
+        // dispatch(getShowHistory(30))
+        dispatch(getShowCatalog())
+        dispatch(getDownloadQueue())
     };
 
     const updateByApi = type => {
@@ -88,6 +98,7 @@ const App = () => {
     };
 
     useEffect(updateAll, []);
+
 
     return (
         <Router>

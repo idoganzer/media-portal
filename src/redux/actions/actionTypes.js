@@ -1,0 +1,9 @@
+export const GET_SHOW_CALENDAR = 'GET_SHOW_CALENDAR';
+export const GET_SHOW_HISTORY  = 'GET_SHOW_HISTORY';
+export const GET_SHOW_QUEUE    = 'GET_SHOW_QUEUE';
+export const GET_SHOW_MISSING  = 'GET_SHOW_MISSING';
+export const GET_SHOW_CATALOG  = 'GET_SHOW_CATALOG';
+export const GET_MOVIE_CATALOG = 'GET_MOVIE_CATALOG';
+export const REQ_PENDING       = 'REQ_PENDING';
+export const REQ_SUCCESSFUL    = 'REQ_SUCCESSFUL';
+export const REQ_FAILED        = 'REQ_FAILED';
