@@ -1,17 +1,30 @@
 import React, {useEffect} from 'react';
 import styled from 'styled-components';
+import {useSelector} from "react-redux";
+import useInterval from "./hooks/useInterval";
+import usePrevious from "./hooks/usePrevious";
+
 import Card from "./Card";
 import leftArrow from '../images/left.svg'
+import {ReactComponent as LeftArrow} from '../images/left.svg';
+import {ReactComponent as RightArrow} from '../images/right.svg';
 import rightArrow from '../images/right.svg'
+import WantedList from "./WantedList";
+
+import {updateAll, updateShowQueue} from "../redux/features/update";
 
 const ShowContainer = styled.div`
   width:100%;
-  h1 {
+  .listHeader {
+    display: flex;
     font-size: 1.5em;
     padding: 5px 10px;
     margin-bottom: 10px;
     font-weight: bold;
     border-bottom: 1px solid ${props => props.theme.headerBorder};
+    h1 {
+      margin-right: 10px;
+    }
   }
   .scrollBtn {
     width: 60px;
@@ -19,9 +32,10 @@ const ShowContainer = styled.div`
     cursor: pointer;
     float: right;
     display: flex;
-    img {
+    .icon {
       height: 100%;
       margin: 10px;
+      fill: ${props => props.theme.textColor};
       &:hover {
         transform: scale3d(1.1,1.1,1.1);
       }
@@ -33,6 +47,7 @@ const ShowContainer = styled.div`
   &.hidden {
      display: none;
   }
+
 `;
 
 const List = styled.ul`
@@ -54,9 +69,11 @@ const List = styled.ul`
   }
 `;
 
-
-const Shows = ({shows}) => {
-    const showListParent = React.createRef();
+const Downloaded = () => {
+    const shows = useSelector(state => state.showHistory),
+          downloadQueue = useSelector(state => state.showQueue),
+          prevDownloadQueue = usePrevious(downloadQueue.data.length),
+          showListParent = React.createRef();
 
     const handleClick = event => event.target.className === 'leftBtn' ? animateScroll('left') : animateScroll('right');
 
@@ -74,21 +91,31 @@ const Shows = ({shows}) => {
     };
 
     const resetScroll = () => {showListParent.current.scrollLeft = 0};
+    const setDelay = () => downloadQueue.data.length ? 10000 : 30000;
 
-    useEffect(resetScroll, []);
+    useEffect(resetScroll, [showListParent]);
+
+    useInterval(() => {
+        updateShowQueue()
+        if (downloadQueue.data.length < prevDownloadQueue) updateAll()
+    }, setDelay())
 
     return (
-        <ShowContainer className={shows.length === 0 ? 'hidden' : ' '}>
-            <h1>Downloaded</h1>
+        <ShowContainer className={shows.data.length === 0 ? 'hidden' : ' '}>
+            <div className='listHeader'>
+                <h1>Downloaded</h1>
+                <WantedList/>
+            </div>
             <List ref={showListParent}>
-                {shows.map(show => <Card key={show.id || show[0].id} show={show}/>)}
+                {downloadQueue.data.map(show => <Card key={show.id || show[0].id} show={show}/>)}
+                {shows.data.map(show => <Card key={show.id || show[0].id} show={show}/>)}
             </List>
             <div className={'scrollBtn'}>
-                <img className='leftBtn' src={leftArrow} alt="" onClick={handleClick}/>
-                <img className='rightBtn' src={rightArrow} alt="" onClick={handleClick}/>
+                <LeftArrow className='leftBtn icon' src={leftArrow} alt="" onClick={handleClick}/>
+                <RightArrow className='rightBtn icon' src={rightArrow} alt="" onClick={handleClick}/>
             </div>
         </ShowContainer>
     )
-}
+};
 
-export default Shows;
+export default Downloaded;

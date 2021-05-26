@@ -1,11 +1,14 @@
-import React, {useState, useEffect, useRef} from "react";
+import React, {useState, useRef} from "react";
 import {NavLink} from "react-router-dom";
 import styled from "styled-components";
-import { links } from "./configuration/config.json"
-import DownloadQueue from "./DownloadQueue";
-import {ReactComponent as MenuIcon} from "../images/menu.svg";
-import {ReactComponent as DownloadIcon} from "../images/download.svg";
+import {useDispatch} from "react-redux";
 
+import {toggle} from "../redux/features/toggleTheme"
+import useOnClickOutside from './hooks/useOnClickOutside';
+import { links } from "./configuration/config.json"
+
+import {ReactComponent as MenuIcon} from "../images/menu.svg";
+import {ReactComponent as ThemeIcon} from "../images/light-bulb.svg";
 
 const TopBarContainer = styled.div`
     height: 35px;
@@ -19,6 +22,7 @@ const TopBarContainer = styled.div`
     h1 {
       font-weight: bold;
       padding:0 12px;
+      color: ${props => props.theme.headerTextColor};
     }
     span {
       flex-grow: 2;
@@ -33,18 +37,6 @@ const TopBarContainer = styled.div`
       cursor: pointer;
       &:first-of-type {
         height: 15px;
-        .arrow {
-          transform: translateY(-380px);
-          transform-origin: 50% 50%;
-          animation: 1s linear downloadAnimation;
-          animation-iteration-count: infinite;
-        }
-        &.hidden {
-          display: none;
-        }
-        @keyframes downloadAnimation {
-          100% {transform: translateY(380px);}
-        }
       }
     }
 `;
@@ -58,6 +50,20 @@ const NavigationMenu = styled.nav`
     z-index: 2;
     overflow-y: auto;
     transition: right 120ms ease-in-out;
+    .settingsMenuContainer {
+      width: 100%;
+      display: flex;
+      justify-content: flex-end;
+      padding: 10px 5px;
+      box-sizing: border-box;
+      .themeIcon {
+        height: 19px;
+        margin-right: 10px;
+        border-bottom: 1px solid ${props => props.theme.menuBorder};
+        fill: ${props => props.theme.textColor};
+        cursor: pointer;
+      }
+    }
     a {
       font-size: 1.1em;
       font-variant: all-small-caps;
@@ -67,62 +73,34 @@ const NavigationMenu = styled.nav`
       padding: 15px 5px;
       margin-left: 10px;
       border-bottom: 1px solid ${props => props.theme.menuBorder};
-       &:last-child {
-        border: none;
-       }
     }
-
     &.isExtended {
       right: 0;
       border-left: 10px solid ${props => props.theme.mainBorder};
     }
 `;
 
-/**
- * Saves the last state of a prop/state after a change to is has happened
- * @param value the previous state
- * @return {number} The length of the previous state
- */
-const usePrevious = (value) => {
-    const ref = useRef();
-    useEffect(() => {
-        ref.current = value.length;
-    });
-    return ref.current;
-}
 
-const TopBar = ({queue, doUpdateByType,doUpdateByApi, loadedState}) => {
-    const [isDownloading, setDownloading]   = useState(false),
-          [isExtended, toggleExtended]      = useState(false),
-          prevUpdate                        = usePrevious(queue);
+const TopBar = () => {
+    const [isExtended, setIsExtended] = useState(false),
+          navigationMenuRef = useRef(null),
+          dispatch = useDispatch();
 
-    const togglePanel = () => toggleExtended(!isExtended);
+    useOnClickOutside(navigationMenuRef, () => setIsExtended(false));
 
-    useEffect(() => {
-        if (prevUpdate !== queue.length && prevUpdate !== undefined) doUpdateByApi('show');
-        if (queue.length > 0) setDownloading(true);
-            else setDownloading(false);
-    }, [queue, prevUpdate, doUpdateByApi]);
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            if (loadedState.includes('sonarr')) doUpdateByType('showQueue');
-        }, 10000);
-
-        return () => clearInterval(interval)
-    }, [loadedState, doUpdateByType]);
+    const togglePanel = () => setIsExtended(!isExtended);
+    const toggleTheme = () => dispatch(toggle());
 
     return (
-        <TopBarContainer>
+        <TopBarContainer ref={navigationMenuRef}>
             <h1>Media Portal</h1>
             <span>
                 <NavLink exact to='/' activeClassName='active'>Tv</NavLink>
                 <span> \ </span>
                 <NavLink to='/movies' activeClassName='active'>Movies</NavLink>
             </span>
-            <DownloadIcon className={isDownloading ? 'downloadIcon' : 'downloadIcon hidden'}/>
             <MenuIcon className={'menuIcon'} onClick={togglePanel}/>
-            <NavigationMenu className={isExtended ? 'isExtended': null} onClick={togglePanel}>
+            <NavigationMenu className={isExtended ? 'isExtended': null}>
                 <ul>
                     {
                         links.map(link =>
@@ -132,10 +110,12 @@ const TopBar = ({queue, doUpdateByType,doUpdateByApi, loadedState}) => {
                         )
                     }
                 </ul>
-                {queue.map(show => <DownloadQueue key={show.id} queue={show} doUpdate={doUpdateByApi}/>)}
+                <div className="settingsMenuContainer">
+                    <ThemeIcon onClick={toggleTheme} className='themeIcon'/>
+                </div>
             </NavigationMenu>
         </TopBarContainer>
     )
-}
+};
 
 export default TopBar;

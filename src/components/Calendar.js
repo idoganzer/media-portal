@@ -1,12 +1,13 @@
 import React from "react";
 import styled from "styled-components";
+import {useSelector} from "react-redux";
 
 const CalendarContainer = styled.div`
   ul {
     margin-bottom: 25px;
     h1 {
       font-size: 1.5em;
-      border-bottom: 2px solid #414141;
+      border-bottom: 2px solid ${props => props.theme.headerBorder};
       padding-bottom: 5px;
     }
     li {
@@ -45,7 +46,9 @@ const CalendarContainer = styled.div`
     }
   }
 `;
-const Calendar = ({ calendar }) => {
+const Calendar = () => {
+    const calendar = useSelector(state => state.showCalendar);
+
     const makeDateString = date => date.toLocaleString('default', {weekday: 'long', month: 'short', day: '2-digit' });
     const setItemClass = ({date, hasFile}) => hasFile ? 'hasFile' : (new Date(date) < new Date() ? 'missingFile' : null);
 
@@ -67,7 +70,7 @@ const Calendar = ({ calendar }) => {
             {plotWeek().map(day =>
                 <ul key={day}>
                     <h1>{day}</h1>
-                    {calendar.filter(dailyShows => makeDateString(new Date(dailyShows.date)) === day)
+                    {calendar.data.filter(dailyShows => makeDateString(new Date(dailyShows.date)) === day)
                         .map(show =>
                             <li key={show.id} className={setItemClass(show)}>
                                 <a rel="noopener noreferrer" href={show.URL} target='_blank'><h2>{show.name}</h2></a>
@@ -79,6 +82,6 @@ const Calendar = ({ calendar }) => {
             )}
         </CalendarContainer>
     )
-}
+};
 
-export default Calendar
+export default Calendar;

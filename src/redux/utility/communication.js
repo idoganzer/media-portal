@@ -1,4 +1,4 @@
-import { apiConf } from '../configuration/api'
+import { apiConf } from '../../components/configuration/api';
 
 /**
  * pageDispatch Takes a keyed object and dispatches it to the correlation func
@@ -10,18 +10,19 @@ const pageDispatch = {
         createBaseString(sonarr, '/calendar') + '&start=' + getDate(range)[0] + '&end=' + getDate(range)[1],
     showHistory: ({ sonarr }, range) =>
         createBaseString(sonarr, '/history') + '&pageSize=' + (range || 30),
-    showQueue: ({ sonarr }) => createBaseString(sonarr,'/queue'),
+    downloadQueue: ({ sonarr }) => createBaseString(sonarr,'/queue'),
     showCatalog: ({ sonarr }) => createBaseString(sonarr, '/series'),
     showWanted: ({ sonarr }) => createBaseString(sonarr, '/wanted/missing'),
     movieCatalog: ({ radarr }) => createBaseString(radarr, '/movie')
-}
+};
 /**
  * Creates a request string for the api get request
  * @param obj The base request string
  * @param path The API path
  * @return {string} A request string
  */
-const createBaseString = (obj, path) => obj.URL + path + '?' + obj.key
+const createBaseString =
+    (obj, path) => obj.URL + path +  '?apikey=' + obj.key;
 
 /**
  * Returns two dates separated by the range indicated by the range param
@@ -34,7 +35,7 @@ const getDate = range => {
         end = new Date((new Date()).setDate(now.getDate() + (range || 7))),
         endString = end.getFullYear() + "-" + (end.getMonth() + 1) + "-" + (end.getDate());
     return [startString,endString]
-}
+};
 
 /**
  * getDataByType Takes and returns the results of fetching a specific API route
@@ -45,29 +46,23 @@ const getDate = range => {
 export const getDataByType = async (type, range) => {
     const response = await fetch(pageDispatch[type](apiConf, range));
     return [{[type] : await response.json()}]
-}
+};
 
-/**
- * getDataByAPI Takes and returns the results of fetching a specific API by type i.e movie to tv show
- * @param type An array of API routes
- * @return {Promise<any[]>}
- */
-export const getDataByAPI = async (type) => {
-    const response = await Promise.all(Object.keys(pageDispatch)
-        .filter(page => page.includes(type))
-        .map(async page => ({[page] : await fetch(pageDispatch[page](apiConf))}))
-    )
-    return await Promise.all(response.map(async res => ({[Object.keys(res)[0]] : await res[Object.keys(res)].json()})))
-}
+export const postCommand = async (command) => {
+    const myHeaders = new Headers();
+    myHeaders.append("X-Api-Key", apiConf.sonarr.key);
+    myHeaders.append("Content-Type", "application/javascript");
 
-/**
- * getData Takes and returns the results of fetching all API that are defined
- * @return {Promise<{}[]>}
- */
-export const getData = async () => {
-    const response = await Promise.all(Object.keys(pageDispatch)
-        .map(async page => ({[page] : await fetch(pageDispatch[page](apiConf))}))
-    )
+    const raw = JSON.stringify({"name": command});
 
-    return await Promise.all(response.map(async res => ({[Object.keys(res)[0]] : await res[Object.keys(res)].json()})))
-}
+    const requestOptions = {
+        method: 'POST',
+        headers: myHeaders,
+        body: raw,
+        redirect: 'follow'
+    };
+
+    const res = await fetch(apiConf.sonarr.base + "/sonarr/api/command", requestOptions);
+    return await res.json();
+
+};

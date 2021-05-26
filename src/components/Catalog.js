@@ -1,12 +1,12 @@
-import React from "react";
 import { withRouter } from "react-router-dom";
+import {useSelector} from "react-redux";
 import styled from "styled-components";
 
 const CatalogContainer = styled.div`
   .topBar {
     display: flex;
     justify-content: space-between;
-    border-bottom: 2px solid #414141;
+    border-bottom: 2px solid ${props => props.theme.menuBorder};
     padding-bottom: 5px;
     margin-bottom: 2px;
 
@@ -42,7 +42,11 @@ const CatalogContainer = styled.div`
   }
 `;
 
-const Catalog = ({ catalog, location }) => {
+const Catalog = ({ location }) => {
+    const showCatalog = useSelector(state => state.showCatalog),
+          movieCatalog = useSelector(state => state.movieCatalog);
+
+    const byLocationDataSelector = () => location.pathname.includes('/movies') ? movieCatalog : showCatalog;
 
     return (
         <CatalogContainer>
@@ -50,7 +54,7 @@ const Catalog = ({ catalog, location }) => {
                 <h1>{!location.pathname.includes('/movies') ? 'Catalog' : 'Movies'}</h1>
             </div>
             <div className="catalog">
-                {catalog.map(show =>
+                {byLocationDataSelector().data.map(show =>
                     <div key={show.id}>
                         <a rel="noopener noreferrer" href={show.URL} target='_blank'>
                             <img src={show.images} alt={show.title}/>
@@ -64,6 +68,6 @@ const Catalog = ({ catalog, location }) => {
             </div>
         </CatalogContainer>
     )
-}
+};
 
 export default withRouter(Catalog);
