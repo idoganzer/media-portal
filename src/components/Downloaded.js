@@ -93,12 +93,12 @@ const Downloaded = () => {
     const resetScroll = () => {showListParent.current.scrollLeft = 0};
     const setDelay = () => downloadQueue.data.length ? 10000 : 30000;
 
-    useEffect(resetScroll, [showListParent]);
+    useEffect(resetScroll, []);
 
     useInterval(() => {
         updateShowQueue()
-        if (downloadQueue.data.length < prevDownloadQueue) updateAll()
-    }, setDelay())
+        if (downloadQueue.data.length < prevDownloadQueue) updateAll();
+    }, setDelay());
 
     return (
         <ShowContainer className={shows.data.length === 0 ? 'hidden' : ' '}>
