@@ -69,7 +69,7 @@ const ListItem = styled.li`
       background: ${props => props.theme.transparentBg};
       font-size: 0.9em;
       font-weight: bold;
-      padding: 5px;
+      padding: 5px 5px 10px 5px;
       margin-bottom: 10px;
       border-bottom: 1px solid ${props => props.theme.headerBorder};
     }

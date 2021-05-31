@@ -46,9 +46,16 @@ const WantedListContainer = styled.div`
         height: 15px;
         fill: ${props => props.theme.textColor};
         cursor: pointer;
-        transition: transform 1s linear;
-        &:hover {
-          transform: rotate(720deg);
+      }
+      .rotate {
+        animation: rotating 2s linear infinite;
+      }
+      @keyframes rotating {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
         }
       }
     }
@@ -80,7 +87,7 @@ const WantedList = () => {
             <ul className={'wantedList ' + (isExtended ? 'isExtended': null)}>
                 <li>
                     <h1>Wanted Shows</h1>
-                    <RefreshIcon onClick={handleRefresh}/>
+                    <RefreshIcon className={wantedShows.reqState === 'pending' ? 'rotate' : null} onClick={handleRefresh}/>
                 </li>
                 {wantedShows.data.map(show =>
                     <li key={show.id}>
