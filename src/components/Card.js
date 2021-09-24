@@ -1,5 +1,8 @@
-import React, {useState} from 'react';
+import {useState} from 'react';
 import styled from 'styled-components';
+
+import DownloadProgressBar from "./DownloadProgressBar";
+import {ReactComponent as DownloadIcon} from "../images/download.svg";
 
 const ListItem = styled.li`
   width: 272px;
@@ -7,33 +10,44 @@ const ListItem = styled.li`
   background: ${props => props.theme.menuColor};
   perspective: 500px;
   cursor: pointer;
+
+  .downloadImg {
+    filter: grayscale(0.9);
+  }
+
   .cardInner {
-    transition: transform 0.4s cubic-bezier(1,0.5,0,1);
+    transition: transform 0.4s cubic-bezier(1, 0.5, 0, 1);
     transform-style: preserve-3d;
     position: relative;
   }
+
   .cardFront {
     z-index: 2;
     transform: rotateY(0deg);
-    div {
-      width: 1.5rem;
-      height: 1.5rem;
-      line-height: 1.4rem;
-      text-align: center;
+
+    .otherEpisodesCounter {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 15px;
       position: absolute;
-      top: 5px;
+      bottom: 5px;
       right: 10px;
       z-index: 3;
-      background: #f61e1e;
-      padding: 2px;
-      border-radius: 50%;
-      font-weight: bold;
-      font-size: 0.9em;
+      background: ${props => props.theme.notificationColor};
+      h2 {
+        height: 100%;
+        font-size: 0.8em;
+        font-weight: bold;
+      }
     }
   }
+
   .cardBack {
     transform: rotateY(180deg);
   }
+
   .cardFront, .cardBack, img {
     width: 272px;
     height: 400px;
@@ -42,8 +56,51 @@ const ListItem = styled.li`
     left: 0;
     backface-visibility: hidden;
   }
-.cardInner.isExtended {
+
+  .cardInner.isExtended {
     transform: rotateY(180deg);
+  }
+
+  .downloadContainer {
+    height: 100%;
+    position: relative;
+    z-index: 3;
+    .downloadHeader {
+      background: ${props => props.theme.transparentBg};
+      font-size: 0.9em;
+      font-weight: bold;
+      padding: 5px 5px 10px 5px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid ${props => props.theme.headerBorder};
+    }
+    svg {
+      position: absolute;
+      height: 13px;
+      right: 5px;
+      top: 4px;
+
+      .arrow {
+        transform: translateY(-380px);
+        transform-origin: 50% 50%;
+        animation: 1s linear downloadAnimation;
+        animation-iteration-count: infinite;
+      }
+
+      &.hidden {
+        display: none;
+      }
+
+      @keyframes downloadAnimation {
+        100% {
+          transform: translateY(380px);
+        }
+      }
+    }
+
+    div:last-child {
+      position: absolute;
+      bottom: 0;
+    }
   }
 `;
 const ShowInfoContainer = styled.div`
@@ -84,18 +141,15 @@ const ShowInfoContainer = styled.div`
 `;
 
 const buildCard = show => {
-    show.otherEpisodes = show.otherEpisodes.filter(
-        (other, i, array) => show.episodeId !== other.episodeId
-            && array.findIndex(target => (target.episodeId === other.episodeId)) === i
-    );
-    if (show.otherEpisodes.length > 0) {
+    if (show.hasOwnProperty('otherEpisodes') && show.otherEpisodes.length > 0) {
         const shortList = show.otherEpisodes.slice(0,7),
               leftovers = show.otherEpisodes.slice(7);
-
         return (
-            <React.Fragment>
+            <>
                 <div className='cardFront'>
-                    <div>+{show.otherEpisodes.length}</div>
+                    <div className={'otherEpisodesCounter'}>
+                        <h2>+{show.otherEpisodes.length}</h2>
+                    </div>
                     <img src={show.img} alt=""/>
                 </div>
                 <ShowInfoContainer className={'cardBack'}>
@@ -116,26 +170,41 @@ const buildCard = show => {
                     }
                     <span>{show.showFormatNumber}</span>
                 </ShowInfoContainer>
-            </React.Fragment>
+            </>
         )
     }
     return (
-        <React.Fragment>
+        <>
             <div className='cardFront'>
-                <img src={show.img} alt=""/>
+                <img
+                    src={show.img} alt=""
+                    className={
+                        show.hasOwnProperty('percentComplete')
+                            ? 'downloadImg'
+                            : null}
+                />
+                {
+                    show.hasOwnProperty('percentComplete')
+                        ?
+                            <div className="downloadContainer">
+                                <h1 className='downloadHeader'>{show.name}</h1>
+                                <DownloadIcon/>
+                                <DownloadProgressBar queue={show}/>
+                            </div>
+                        : null
+                }
             </div>
             <ShowInfoContainer className={'cardBack'}>
                 <h1><a rel="noopener noreferrer" href={show.URL} target='_blank'>{show.name}</a></h1>
                 <div>{show.title}</div>
                 <span>{show.showFormatNumber}</span>
             </ShowInfoContainer>
-        </React.Fragment>
+        </>
     )
 };
 
 const Card = ({show}) => {
-    const [isExtended, setExtended]   = useState(false);
-
+    const [isExtended, setExtended] = useState(false);
     const togglePanel = () => setExtended(!isExtended);
     return (
         <ListItem className={isExtended ? 'isExtended': null} onClick={togglePanel}>
@@ -144,6 +213,6 @@ const Card = ({show}) => {
             </div>
         </ListItem>
     )
-}
+};
 
 export default Card;

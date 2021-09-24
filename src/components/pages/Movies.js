@@ -1,4 +1,3 @@
-import React from 'react'
 import styled from 'styled-components';
 import Catalog from "../Catalog";
 
@@ -9,7 +8,7 @@ const MovieContainer = styled.div`
     grid-template-columns: repeat(auto-fit , minmax(150px, 1fr));
     gap: 10px;
   }
-`
-const Movies = ({ catalog}) => <MovieContainer> <Catalog catalog={catalog}/> </MovieContainer>
+`;
+const Movies = () => <MovieContainer> <Catalog/> </MovieContainer>;
 
-export default Movies
+export default Movies;

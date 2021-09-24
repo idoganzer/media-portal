@@ -1,130 +1,47 @@
-import React, {useEffect, useState} from "react";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-import styled, { ThemeProvider } from 'styled-components';
-import Shows from "./components/Shows";
-import Movies from "./components/pages/Movies";
+import React, {useEffect} from "react";
+import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
+import {useSelector} from "react-redux";
+import GlobalStyle from "./style/GlobalStyles";
+import {ThemeProvider} from 'styled-components';
+import {darkTheme, lightTheme} from "./style/Themes";
+
 import TopBar from "./components/TopBar";
-import Calendar from "./components/Calendar";
-import Catalog from "./components/Catalog";
-import Loading from  "./components/Loading";
-import { getDataByType, getDataByAPI, getData } from "./components/services/communication";
-import parseResults from "./components/services/parseResults";
+import Movies from "./components/pages/Movies";
+import Shows from "./components/pages/Shows";
+import Loading from "./components/Loading";
 
-
-// General shared Css values
-const theme = {
-    bgColor: '#1f1f1f',
-    fgColor: '#353535',
-    menuColor: '#282828',
-    mainBorder: '#EFC958',
-    hasFile: '#358c35',
-    missingFile: '#8c3551',
-    menuBorder: '#303030',
-    headerBorder: '#414141',
-    textColor: '#f6f6f6'
-};
-// style for the main site contrainer
-const ContentContainer = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 7px;
-  margin: 30px 7px 15px 7px;
-`;
+import {updateAll} from "./redux/features/update";
+import useInterval from "./components/hooks/useInterval";
 
 const App = () => {
-    const [showCalendar, setShowCalendar]   = useState([]),
-          [showHistory, setShowHistory]     = useState([]),
-          [showQueue, setShowQueue]         = useState([]),
-          [showCatalog, setShowCatalog]     = useState([]),
-          [movieCatalog, setMovieCatalog]   = useState([]),
-          [loadedState, setLoadedState]    = useState([]);
+    const isDarkMode = useSelector(state => state.themeControl.isDarkMode);
 
-    const stateDispatch = {
-        showCalendar: shows => setShowCalendar(shows),
-        showHistory: shows => setShowHistory(shows),
-        showQueue: downloads => setShowQueue(downloads),
-        showCatalog: shows => setShowCatalog(shows),
-        movieCatalog: movies => setMovieCatalog(movies)
-    };
-
-    const updateState = update => parseResults(update).map(res => {
-        const key = Object.keys(res)[0];
-        stateDispatch[key](res[key])
-        return key
-    });
-
-    const handleError = () => {
-        Promise.allSettled([getDataByAPI('show'), getDataByAPI('movie')])
-            .then(data => {
-                data.forEach((res, i) => {
-                    if (res.status !== 'rejected') {
-                        updateState(res.value);
-                        i === 0
-                            ? setLoadedState([...loadedState, 'sonarr'])
-                            : setLoadedState([...loadedState, 'radarr']);
-                    }
-                })
-            })
-    };
-
-    const updateByType = (type, range) => {
-        getDataByType(type, range)
-            .then(data => updateState(data))
-            .catch(error => console.error(error));
-    };
-
-    const updateAll = () => {
-        getData()
-            .then(data => {
-                setLoadedState(['radarr', 'sonarr']);
-                updateState(data);
-            })
-            .catch(error => handleError());
-    };
-
-    const updateByApi = type => {
-        getDataByAPI(type)
-            .then(data => updateState(data));
-    };
-
-    useEffect(updateAll, []);
-
+    useEffect(() => { updateAll() }, []);
+    useInterval(() => { updateAll() }, 60000);
     return (
         <Router>
             <div className={'App'}>
-                <ThemeProvider theme={theme}>
-                    <TopBar
-                        queue={showQueue}
-                        doUpdateByType={updateByType}
-                        doUpdateByApi={updateByApi}
-                        loadedState={loadedState}
-                    />
+                <ThemeProvider theme={isDarkMode ? darkTheme : lightTheme}>
+                    <GlobalStyle/>
+                    <TopBar/>
                     <Switch>
                         <Route exact path='/' render={props => (
                             <>
-                                {loadedState.includes('sonarr')
-                                    ? null
-                                    : <Loading loadedState={loadedState} doUpdateAll={updateAll}/>}
-                                <Shows shows={showHistory}/>
-                                <ContentContainer>
-                                    <Calendar calendar={showCalendar}/>
-                                    <Catalog catalog={showCatalog}/>
-                                </ContentContainer>
+                                <Loading/>
+                                <Shows/>
                             </>
                         )}/>
                         <Route path='/movies' render={props => (
                             <>
-                                {loadedState.includes('radarr')
-                                    ? null
-                                    : <Loading loadedState={loadedState} doUpdateAll={updateAll}/>}
-                                <Movies {...props} catalog={movieCatalog}/>
+                                <Loading/>
+                                <Movies/>
                             </>
-                            )}/>
+                        )}/>
                     </Switch>
                 </ThemeProvider>
             </div>
         </Router>
     )
-}
+};
 
 export default App;

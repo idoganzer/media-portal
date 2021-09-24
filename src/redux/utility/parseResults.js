@@ -7,8 +7,8 @@ import bannerPlaceholderImg from "../../images/banner-placeholder.jpg";
  * @returns {object} The parsed results of the received object
  */
 const parserDispatch = {
-    showCalendar: shows => ({
-            showCalendar : shows.map(show => {
+    showCalendar: shows => (
+            shows.map(show => {
                 return {
                     id: show.id,
                     date: show.airDateUtc,
@@ -21,9 +21,9 @@ const parserDispatch = {
                     img: filterPosters(show.series.images)
                 }
             })
-    }),
-    showHistory: ({ records }) => ({
-        showHistory : records.filter(value => value.eventType === 'downloadFolderImported')
+    ),
+    showHistory: ({ records }) => (
+        records.filter(value => value.eventType === 'downloadFolderImported')
             .map(show => {
             return {
                 id: show.id,
@@ -41,20 +41,24 @@ const parserDispatch = {
                 otherEpisodes: []
             }
         })
-    }),
-    showQueue: downloads => ({
-        showQueue : downloads.map(show => {
+    ),
+    downloadQueue: downloads => (
+        downloads.map(show => {
             return {
                 id: show.id,
-                title: show.series.title,
+                name: show.series.title,
+                title: show.episode.title,
                 episode: buildEpisodeNum(show.episode.seasonNumber, show.episode.episodeNumber),
                 percentComplete: calcPercent(show.size, show.sizeleft),
-                banner: filterBanner(show.series.images)
+                banner: filterBanner(show.series.images),
+                img: filterPosters(show.series.images),
+                showFormatNumber: buildEpisodeNum(show.episode.seasonNumber, show.episode.episodeNumber),
+                URL: process.env.REACT_APP_SONARR_BASE_URL + '/sonarr/series/' + show.series.titleSlug,
             }
         })
-    }),
-    showCatalog: shows => ({
-        showCatalog : shows.map(show => {
+    ),
+    showCatalog: shows => (
+        shows.map(show => {
             show.images = filterPosters(show.images).indexOf('static') === -1
                 ? process.env.REACT_APP_SONARR_BASE_URL + filterPosters(show.images)
                 : filterPosters(show.images);
@@ -62,16 +66,28 @@ const parserDispatch = {
             show.URL = process.env.REACT_APP_SONARR_BASE_URL + '/sonarr/series/' + show.titleSlug;
             return show
         })
-    }),
-    movieCatalog: movies => ({
-        movieCatalog : movies.map(movie => {
+    ),
+    showWanted: shows =>
+        shows.records.map(show => {
+            return {
+                id: show.id,
+                title: show.series.title,
+                episode: buildEpisodeNum(show.seasonNumber, show.episodeNumber),
+                aired: show.airDateUtc,
+                img: filterPosters(show.series.images),
+                hasFile: show.hasFile,
+                URL: process.env.REACT_APP_SONARR_BASE_URL + '/sonarr/series/' + show.series.titleSlug
+            }
+        }),
+    movieCatalog: movies => (
+        movies.map(movie => {
             movie.images = filterPosters(movie.images).indexOf('static') === -1
                 ? process.env.REACT_APP_RADARR_BASE_URL + filterPosters(movie.images)
                 : filterPosters(movie.images);
             movie.URL = process.env.REACT_APP_RADARR_BASE_URL + '/radarr/movie/' + movie.titleSlug
             return movie
         })
-    })
+    )
 }
 /**
  * sortDuplicates Takes a showHistory object and sorts any duplicate into an array inside that object
@@ -79,8 +95,8 @@ const parserDispatch = {
  * @returns {*}
  */
 const sortDuplicates = data => {
-    data.showHistory = Object.values(
-        data.showHistory.reduce((acc, next) => {
+    data = Object.values(
+        data.reduce((acc, next) => {
             (acc[next.showId] || (acc[next.showId] = [])).push(next);
             return acc
         }, {}))
@@ -145,11 +161,22 @@ const calcPercent = (total, amount) => Math.round(((total - amount) / total) * 1
  * @param data
  * @return {object}
  */
+const sortOtherEpisodes = shows =>
+    shows.map(show => {
+        if (show.otherEpisodes.length > 1) {
+            show.otherEpisodes = show.otherEpisodes.filter(
+                (other, i, array) => show.episodeId !== other.episodeId
+                    && array.findIndex(target => (target.episodeId === other.episodeId)) === i
+            );
+        }
+        return show
+    });
+
 const parseResults = data => {
-    const results = data.map(res => {
+    const results = data.flatMap(res => {
         const key = Object.keys(res)[0];
         if (key === 'showHistory') {
-            return sortDuplicates(parserDispatch[key](res[key]))
+            return sortOtherEpisodes(sortDuplicates(parserDispatch[key](res[key])))
         } else {
             return parserDispatch[key](res[key])
         }
