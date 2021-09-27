@@ -11,14 +11,14 @@ const CalendarContainer = styled.div`
       padding-bottom: 5px;
     }
     li {
-      background: ${props => props.theme.menuColor};
+      background: ${props => props.theme.calMain};
       display: grid;
       grid-template-columns: 1fr 1fr;
       grid-template-rows: fit-content() 1fr;
       padding: 5px;
       margin: 7px 0;
       &:nth-child(odd) {
-         background: ${props => props.theme.menuBorder};
+         background: ${props => props.theme.calSec};
       }
       &.hasFile {
         background: ${props => props.theme.hasFile};

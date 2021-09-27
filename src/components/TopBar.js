@@ -37,6 +37,7 @@ const TopBarContainer = styled.div`
       cursor: pointer;
       &:first-of-type {
         height: 15px;
+        fill: ${props => props.theme.burgerFill}
       }
     }
 `;
