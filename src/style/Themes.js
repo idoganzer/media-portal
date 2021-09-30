@@ -10,20 +10,26 @@ export const darkTheme = {
     headerBorder: '#414141',
     textColor: '#f6f6f6',
     headerTextColor: '#f6f6f6',
-    notificationColor: '#ba3a12'
+    notificationColor: '#ba3a12',
+    burgerFill: '#f6f6f6',
+    calMain: '#282828',
+    calSec: '#303030'
 };
 
 export const lightTheme = {
-    bgColor: '#fdfdfd',
+    bgColor: '#f3f3f3',
     transparentBg: 'rgba(3, 3, 3, 0.9)',
-    fgColor: '#2F4858',
-    menuColor: '#ffffff',
-    mainBorder: '#e8d187',
-    hasFile: '#ceeece',
+    fgColor: '#f3f3f3',
+    menuColor: '#e0e0e0',
+    mainBorder: '#2982b6',
+    hasFile: '#90bee1',
     missingFile: '#907176',
     menuBorder: '#e2e2e2',
-    headerBorder: '#eaeaea',
+    headerBorder: '#e5e5e5',
     textColor: '#1d1d1d',
-    headerTextColor: '#f6f6f6',
-    notificationColor: '#ba3a12'
+    headerTextColor: '#1d1d1d',
+    notificationColor: '#ba3a12',
+    burgerFill: '#1d1d1d',
+    calMain: '#c7d2e8',
+    calSec: '#b3bfd9'
 };
