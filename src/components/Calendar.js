@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React from "react";
 import styled from "styled-components";
 import {useSelector} from "react-redux";
 
@@ -64,53 +64,24 @@ const Calendar = () => {
         }
         return week
     };
-    useEffect(() => {
-        //populateWeek();
-    },[])
-    const populateWeek = () => {
-        const week = plotWeek()
-            .map(day => calendar.data.filter(dailyShows => makeDateString(new Date(dailyShows.date)) === day))
-            .map(item => {
-                if (!item.length) {
-                    item.push('Nothing to watch');
-                    return item
-                }
-                return item
-            });
-        return week
-    };
+
     return (
         <CalendarContainer>
-            {plotWeek().map((day, index) => {
-                if (typeof populateWeek()[index][0] === "string") {
-                    return (
-                        <ul key={day}>
-                            <h1>{day}</h1>
-                            <li>{populateWeek()[index][0]}</li>
-                        </ul>
-                    )
-                } else {
-                    return (
-                        <ul key={day}>
-                            <h1>{day}</h1>
-                            {populateWeek()[index].map(show =>
-                                <li key={show.id} className={setItemClass(show)}>
-                                    <a rel="noopener noreferrer" href={show.URL} target='_blank'><h2>{show.name}</h2></a>
-                                    <p>Episode {show.episodeNumber}</p>
-                                    <span>{new Date(show.date).toLocaleString('en-GB', {hourCycle: 'h24', timeStyle: 'short'})}</span>
-                                </li>
-                            )}
-                        </ul>
-                    )
-
-                }
-
-            })
-            }
+            {plotWeek().map(day =>
+                <ul key={day}>
+                    <h1>{day}</h1>
+                    {calendar.data.filter(dailyShows => makeDateString(new Date(dailyShows.date)) === day)
+                        .map(show =>
+                            <li key={show.id} className={setItemClass(show)}>
+                                <a rel="noopener noreferrer" href={show.URL} target='_blank'><h2>{show.name}</h2></a>
+                                <p>Episode {show.episodeNumber}</p>
+                                <span>{new Date(show.date).toLocaleString('en-GB', {hourCycle: 'h24', timeStyle: 'short'})}</span>
+                            </li>
+                        )}
+                </ul>
+            )}
         </CalendarContainer>
     )
 };
 
 export default Calendar;
-
-
