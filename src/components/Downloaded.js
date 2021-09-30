@@ -1,8 +1,9 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import {useSelector} from "react-redux";
 import useInterval from "./hooks/useInterval";
 import usePrevious from "./hooks/usePrevious";
+import useMountEffect from "./hooks/useMountEffect";
 
 import Card from "./Card";
 import leftArrow from '../images/left.svg'
@@ -93,7 +94,7 @@ const Downloaded = () => {
     const resetScroll = () => {showListParent.current.scrollLeft = 0};
     const setDelay = () => downloadQueue.data.length ? 10000 : 30000;
 
-    useEffect(resetScroll, []);
+    useMountEffect(resetScroll);
 
     useInterval(() => {
         updateShowQueue()
