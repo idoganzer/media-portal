@@ -48,7 +48,7 @@ const WantedListContainer = styled.div`
         cursor: pointer;
       }
       .rotate {
-        animation: rotating 2s linear infinite;
+        animation: rotating 2s linear 2;
       }
       @keyframes rotating {
         from {
@@ -69,6 +69,7 @@ const WantedListContainer = styled.div`
 const WantedList = () => {
     const wantedShows = useSelector(state => state.showWanted),
           [isExtended, setIsExtended] = useState(false),
+          [isClicked, setIsClicked] = useState(false),
           wantedListRef = useRef(null),
           dispatch = useDispatch();
 
@@ -77,6 +78,7 @@ const WantedList = () => {
     const toggleWantedList = () => setIsExtended(!isExtended);
 
     const handleRefresh = () => {
+        setIsClicked(!isClicked);
         dispatch(postSonarrCommand('missingEpisodeSearch'));
     }
     return (
@@ -87,7 +89,7 @@ const WantedList = () => {
             <ul className={'wantedList ' + (isExtended ? 'isExtended': null)}>
                 <li>
                     <h1>Wanted Shows</h1>
-                    <RefreshIcon className={wantedShows.reqState === 'pending' ? 'rotate' : null} onClick={handleRefresh}/>
+                    <RefreshIcon className={isClicked ? 'rotate' : null} onClick={handleRefresh}/>
                 </li>
                 {wantedShows.data.map(show =>
                     <li key={show.id}>
